@@ -5,7 +5,6 @@ tags:
     - 视差估计
     - 立体匹配
     - 汉明距离
-mathjax: true
 categories: 立体视觉
 ---
 
@@ -24,7 +23,7 @@ right_image = cv2.imread("./right.png", 0)
 ```
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/left_gray.jpg">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210508235656.jpg">
 </p>
 
 <!-- more -->
@@ -45,7 +44,7 @@ right_image = cv2.GaussianBlur(right_image, (3,3), 0, 0)
 Census 变换的基本原理：在图像区域定义一个矩形窗口，用这个矩形窗口遍历整幅图像。选取中心像素作为参考像素，将矩形窗口中每个像素的灰度值与参考像素的灰度值进行比较，灰度值小于参考值的像素标记为 0，大于或等于参考值的像素标记为 1，最后再将它们按位连接，得到变换后的结果，变换后的结果是由 0 和 1 组成的二进制码流。<strong>Census 变换的实质是将邻域像素灰度值相对于中心像素灰度值的差异编码成二进制码流。</strong>
 
 <p align="center">
-    <img width="70%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/Census.png">
+    <img width="70%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210508235752.png">
 </p>
 
 我们不妨首先定义矩形窗口的大小为 7x7，由于不会对图像边界进行填充，因此计算图像的补偿尺寸：
@@ -102,7 +101,7 @@ cv2.imwrite("left_census.png", left_census.astype(np.uint8))
 ```
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/left_census.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210508235826.png">
 </p>
 
 ## Cost Volume
@@ -140,7 +139,7 @@ def HanMingDistance(a, b):
 
 在极线约束下，我们会对右图从左至右进行扫描: 在右图 u 的位置得到该像素的 census 序列，然后与左图 u+d 位置处进行比较。由于我们事先不知道该处的视差到底有多大，因此我们会假设一个最大视差值 `max_disparity`，并计算 `0, 1, 2, ..., max_disparity` 处所有的 Hamming 距离。这个过程称为代价计算，如下图所示：
 
-![image](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/Hamming.jpg)
+![image](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210508235905.jpg)
 
 ```python
 max_disparity = 64
@@ -157,7 +156,7 @@ for d in range(0, max_disparity):
 ```
 
 <p align="center">
-    <img width="35%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/cost_volume.png">
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210508235937.png">
 </p>
 
 既然现在已经计算出了每个像素在不同视差 d 时的汉明距离，那么其最小值对应的视差理应最接近该像素的真实视差，从而我们可以得到它的视差图并将其进行归一化：
@@ -178,19 +177,19 @@ cv2.imwrite("cost_volume_disp.png", disp)
 ```
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/cost_volume_disp.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000006.png">
 </p>
 
 我们可以发现视差图中出现了很多椒盐噪声，因此可以考虑使用中值滤波算法进行去燥，得到下图：
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/cost_volume_refine_disp.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000032.png">
 </p>
 
 图中的一些连续平面区域依然出现了很多噪声，而且对于视差不连续的区域其效果特别差。因此我们还需要在此基础上加入一些平滑处理，并构造出了一个能量方程。从而使得立体匹配问题可以转换成寻找最优视差图 `D`，让能量方程 `E(D)` 取得最小值。
 
 <p align="center">
-    <img width="80%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/MommyTalk1600751560479.jpg">
+    <img width="80%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000059.jpg">
 </p>
 
 该能量方程由两部分组成：等式右边第一项表示像素点 `p` 在视差范围内所以匹配代价之和; 第二项和第三项是指当前像素 `p` 和其邻域内所有像素 `q` 之间的平滑性约束, 它是 SGM 算法的核心，将在下节对此进行讲述。

@@ -14,7 +14,7 @@ categories: 立体视觉
 SGM 算法建立了能量方程，并引入了视差约束条件，以对此进行优化：
 
 <p align="center">
-    <img width="80%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/MommyTalk1600751174763.jpg">
+    <img width="80%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000059.jpg">
 </p>
 
 <!-- more -->
@@ -29,7 +29,7 @@ SGM 算法建立了能量方程，并引入了视差约束条件，以对此进�
 设 `L_{r}` 表示穿过 `r` 方向的扫描路径代价，其计算方式如下所示：
 
 <p align="center">
-    <img width="80%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/MommyTalk1600751250322.jpg">
+    <img width="80%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000240.jpg">
 </p>
 
 等号右边第一项表示像素点 `p` 的初始匹配代价；第二项表示 `p` 的前一个像素点 `p − r` 的最小匹配代价：若和 `p` 的视差差值为 0，无需加任何惩罚因子，差值为 1，加惩罚因子 `P1` ，若差值大于 1，则惩罚因子为 `P2`；第三项表示前一个像素点 `p − r` 沿 `r` 路径上的最小匹配代价，加入该项的目的是抑制 `L_{r}( p, d )` 的数值过大，并不会影响视差空间。
@@ -72,7 +72,7 @@ def get_path_cost(slice, offset):
 如果我们只考虑单路扫描会是什么样的结果呢？假设代价聚合路线为从上至下，即 south 方向（2 号路线）。如下图所示，那么
 
 <p align="center">
-    <img width="25%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/south.png">
+    <img width="25%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000326.png">
 </p>
 
 
@@ -109,7 +109,7 @@ cv2.imwrite("scan_south_disp.png", disparity_map)
 ```
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/scan_south_disp.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000358.png">
 </p>
 
 ### 多路聚合
@@ -117,13 +117,13 @@ cv2.imwrite("scan_south_disp.png", disparity_map)
 从单路扫描的结果可以看出，一维扫描线优化仅仅只受一个方向约束，容易造成“条纹效应”，所以在 SGM 算法中，聚合了多个扫描路径上的匹配代价。
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/scanline.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000416.png">
 </p>
 
 一共有八个方向：south 和 north，east 和 west，south_east 和 north_west， south_west 和 north_east。刚刚实现了 south 方向单路扫描聚合代价的最优求解，而其他路扫描聚合代价的过程和它是类似的。限于篇幅，在这里就不补充了，最后得到的视差图如下所示：
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/SGM/disparity_map.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210509000431.png">
 </p>
 
 
