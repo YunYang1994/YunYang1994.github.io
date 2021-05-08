@@ -23,7 +23,7 @@ from torch.utils.data import Dataset, DataLoader
 然后从[这里](https://download.pytorch.org/tutorial/faces.zip)下载一个名为 <strong>faces</strong> 的文件夹，该文件夹里包含了一些 <strong>68 个特征点（part_0 ~ part_67)</strong> 的人脸图片和 `face_landmarks.csv` 
 
 <p align="center">
-    <img width="20%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/DataLoader/facial_lmks.jpg">
+    <img width="20%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Pytorch-的数据集准备-20210508212935.jpg">
 </p>
 
 <!-- more -->
@@ -128,7 +128,7 @@ print(rescale_sample['image'].shape)           # (256,  256, 3)
 ```
 
 <p align="center">
-    <img width="27%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/DataLoader/facial_lmks.jpg">
+    <img width="27%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Pytorch-的数据集准备-20210508212935.jpg">
 </p>
 
 ### RandomCrop
@@ -168,7 +168,7 @@ print(crop_sample['image'].shape)           # (128,  128, 3)
 ```
 
 <p align="center">
-    <img width="16%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/DataLoader/RandomCrop.jpg">
+    <img width="16%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Pytorch-的数据集准备-20210508212958.jpg">
 </p>
 
 ### ToTensor
