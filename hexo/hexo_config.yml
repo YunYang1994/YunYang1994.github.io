@@ -103,8 +103,8 @@ theme: maupassant
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/YunYang1994/YunYang1994.github.io.git
-  # repo: https://gitee.com/yunyang1994/YunYang1994.git
+  # repo: https://github.com/YunYang1994/YunYang1994.github.io.git
+  repo: https://gitee.com/yunyang1994/YunYang1994.git
 
 search:
   path: search.xml
