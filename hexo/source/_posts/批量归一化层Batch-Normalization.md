@@ -5,13 +5,12 @@ tags:
 	- Batch Normalization
 categories:
 	- 深度学习
-mathjax: true
 ---
 
 通常来说，数据标准化预处理对于浅层模型就足够有效了。<font color=red>但随着模型训练的进行，当每层中参数更新时，靠近输出层的输出容易出现剧烈变化。这令我们难以训练出有效的深度模型，而批量归一化（batch normalization）的提出正是为了应对这种挑战。</font>
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/批量归一化层（Batch Normalization)/Internal_Covariate_Shift.jpg"></p>
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/批量归一化层Batch-Normalization-20210508220832.jpg"></p>
 
 ## BN 来源
 
@@ -27,17 +26,17 @@ BN不是凭空拍脑袋拍出来的好点子，它是有启发来源的：之前
 首先对小批量的样本数据求均值和方差：
 
 <p align="center">
-    <img width="35%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/批量归一化层（Batch Normalization)/MommyTalk1600748016395.jpg"></p>
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/批量归一化层Batch-Normalization-20210508220839.jpg"></p>
 
 
 接下来，使用按元素开方和按元素除法对样本数据进行标准化:
 
 
 <p align="center">
-    <img width="20%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/批量归一化层（Batch Normalization)/MommyTalk1600748133659.jpg"></p>
+    <img width="20%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/批量归一化层Batch-Normalization-20210508220842.jpg"></p>
 
 <p align="center">
-    <img width="20%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/批量归一化层（Batch Normalization)/MommyTalk1600748180578.jpg"></p>
+    <img width="20%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/批量归一化层Batch-Normalization-20210508220845.jpg"></p>
 
 这里 ε > 0是一个很小的常数，保证分母大于 0。在上面标准化的基础上，批量归一化层引入了<strong>两个需要学习的参数：拉伸(scale)参数 γ 和偏移(shift)参数 β。</strong><font color=red>这两个参数会把标准正态分布左移或者右移一点并长胖一点或者变瘦一点，从而使得网络每一层的数据分布保持相似。</font>
 

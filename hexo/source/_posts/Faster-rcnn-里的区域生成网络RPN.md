@@ -12,7 +12,7 @@ categories: 目标检测
 ## 网络结构
 
 <p align="center">
-    <img width="65%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/RPN.png">
+    <img width="65%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221255.png">
 </p>
 
 
@@ -25,13 +25,13 @@ categories: 目标检测
 目标检测其实是生产很多框，然后在消灭无效框的过程。生产很多框的过程利用的是 Anchor 机制，消灭无效框则采用非极大值抑制过程进行处理。RPN 网络输入的图片为 720 x 960，输出的 feature map 尺寸为 45 x 60，由于它们每个点上会产生 9 个 anchor boxes，因此最终一共会得到 45 x 60 x 9 个 anchor boxes。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/faster-rcnn.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221316.png">
 </p>
 
 直接利用这些 anchor boxes 对真实框进行预测会有些困难，因此作者采用了 <strong><font color=red>anchor boxes 与 ground-truth boxes 的偏移量机制</font></strong>进行回归预测。
 
 <p align="center">
-    <img width="45%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/MommyTalk1600756419208.jpg">
+    <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221322.jpg">
 </p>
 
 `x, y, w, h` 分别表示 boxes 的中心坐标和宽高；变量 `x, x_{a}, x^{*}` 则分别代表预测框，anchor 框和 ground-truth 框的中心坐标 `x`
@@ -68,7 +68,7 @@ RPN 的损失函数和 YOLO 非常像，不过从发表论文时间顺序来看�
 在我的代码 [demo.py](https://github.com/YunYang1994/TensorFlow2.0-Examples/blob/master/4-Object_Detection/RPN/demo.py) 里将正负样本都可视化出来了，大家只要配置好 image 和 label 的路径然后直接执行 python demo.py 就可以看到以下图片。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/01.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221332.png">
 </p>
 
 在上图中，蓝色框为 anchor boxes，它们就是正样本，红点为这些正样本 anchor boxes 的中心位置，黑点表示的是负样本 anchor boxes 的中心位置。从图中可以看出：在有人的区域，正样本框的分布比较密集，并且红点都在人体中心区域；而在没有人的区域则布满了黑点,它们表示的是负样本，都属于背景。
@@ -83,25 +83,25 @@ RPN 的损失函数和 YOLO 非常像，不过从发表论文时间顺序来看�
 ```
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/02.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221338.png">
 </p>
 
 你会发现，这就是 ground-truth boxes 框（绿色框）和物体中心点（红色点）的位置。事实上，RPN 的损失是一个多任务的 loss function，集合了分类损失与回归框损失，它们两者之间的优化可以通过 λ 系数去实现平衡。
 
 <p align="center">
-    <img width="70%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/MommyTalk1600756499331.jpg">
+    <img width="70%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221630.jpg">
 </p>
 
 初次看这个损失函数有点迷，<strong><font color=red>它其实是一个 smooth-L1 损失函数, 它的优点在于解决了 L1 损失函数在 0 点附近的不可导问题，而且相比于 L2 损失函数而言，它在训练初始阶段的梯度回传会更加稳定</font></strong>。如下图所示，正负样本都会参与到分类损失的反向传播中去（因为你需要告诉网络什么是正样本和负样本），而回归框的损失只有正样本参与计算（只有正样本才有回归框损失，负样本作为背景是没有回归框损失的)。
 
 <p align="center">
-    <img width="47%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/MommyTalk1600756544371.jpg">
+    <img width="47%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221635.jpg">
 </p>
 
 其中：
 
 <p align="center">
-    <img width="45%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/MommyTalk1600756586214.jpg">
+    <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221744.jpg">
 </p>
 
 ```python
@@ -131,13 +131,13 @@ def compute_loss(target_scores, target_bboxes, target_masks, pred_scores, pred_b
 
 |论文原始 anchor|k-means 的 anchor|
 |:---:|:---:|
-|![论文原始 anchor](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/03.png)|![k-means 的 anchor](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/04.png)|
+|![论文原始 anchor](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221346.png)|![k-means 的 anchor](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221350.png)|
 
 不仅如此，事实上一些其他超参数也会影响正负样本的分布情况，从而直接影响到网络的学习过程。所有这些事实都告诉我们，学习神经网络不能靠从网上看一些浅显的教程就够了的，关键还得自己去多多看源码并实践，才能成为一名合格的深度学习炼丹师。
 
 |pos_thresh=0.2, neg_thresh=0.1|pos_thresh=0.7, neg_thresh=0.2|
 |:---:|:---:|
-|![pos_thresh=0.2, neg_thresh=0.1](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/05.png)|![pos_thresh=0.7, neg_thresh=0.2](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/RPN/06.png)|
+|![pos_thresh=0.2, neg_thresh=0.1](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221358.png)|![pos_thresh=0.7, neg_thresh=0.2](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221405.png)|
 
 最后在测试集上的效果，还是非常赞的! 训练的 score loss基本降到了零，boxes loss 也是非常非常低。但是由于是 RPN 网络，所以我们又不能对它抱太大期望，不然 Faster-RCNN 后面更精确的回归层和分类层意义就不大了。
 

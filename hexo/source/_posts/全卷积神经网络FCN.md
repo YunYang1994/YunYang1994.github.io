@@ -5,13 +5,12 @@ tags:
     - 全卷积网络
     - Skip Connection
 categories: 图像分割
-mathjax: true
 ---
 
 在我还是实习生的时候，我们组的 leader 讲了 FCN 网络。由于当时对图像分割还不是很了解，所以也没太听懂，只记得他当时讲这篇文章拿了 CVPR-2015 的最佳论文奖。现在学习 FCN 就觉得，这应该是图像分割领域里最经典也是最适合入门的网络了吧。
 
 <p align="center">
-    <img width="70%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/67369222-33df5d80-f5ab-11e9-95d4-3d7813cfa0a8.png">
+    <img width="70%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214559.png">
 </p>
 
 <!-- more -->
@@ -32,13 +31,13 @@ FCN 网络很好地解决了这两个问题，它可以接受任意尺寸的输�
 在刚开始的时候，作者将输入图片经过卷积和下采样操作一头走到尾，最后宽和高都被缩放了 32 倍。为了将 feature map 上采样到原来的尺寸，因此作者将 vgg16 的输出扩大了 32 倍，并将该模型称为 FCN-32s。
 
 <p align="center">
-    <img width="70%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/67386859-53d14a00-f5c8-11e9-9d62-ccb1c2e61a80.jpg">
+    <img width="70%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214722.jpg">
 </p>
 
 但是发现FCN-32s的分割效果并不够好，如下图所示。尽管最后的 feature map 输出经过了 32 倍的上采样操作，但是图片里的边缘细节信息还是被 VGG16 网络里的卷积和下采样操作所模糊掉了。
 
 <p align="center">
-    <img width="70%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/67385904-9003ab00-f5c6-11e9-87da-3dbf0dcb079a.png">
+    <img width="70%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214800.png">
 </p>
 
 作者把它称作是一个**what**和**where**的问题，请看下面作者的原话：
@@ -47,7 +46,7 @@ FCN 网络很好地解决了这两个问题，它可以接受任意尺寸的输�
 
 说白了就是**全局信息能够预测这个物体是哪个类别，而局部的细粒度信息能够实现对物体的定位与检测**。为了解决这个问题，作者通过缓慢地（分阶段地）对编码特征进行上采样，从浅层添加了“skip connections(跳跃连接)”，并将这两个特征映射相加，并最终将它上采样 8 或者 16 倍进行输出，分别称为 FCN-8s 和 FCN-16s 模型。
 
-![image](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/67389318-f4c20400-f5cc-11e9-9769-acb912aa8292.png)
+![image](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214822.png)
 
 添加 skip connections 结构后，就能将深层的，粗糙的语义信息与浅层的，精细的表面信息融合起来，从而在一定程度上解决图像边缘分割效果较差的问题。
 
@@ -58,7 +57,7 @@ FCN 网络很好地解决了这两个问题，它可以接受任意尺寸的输�
 这还得从感受野(Receptive Field)说起，卷积神经网络中感受野的定义是卷积神经网络每一层输出的特征图（feature map）上的像素点在输入图片上映射的区域大小。再通俗点的解释是，特征图上的一个点对应输入原来图片上的区域。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/67464190-82592e80-f675-11e9-9ad0-2b4ac870eb52.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214830.png">
 </p>
 
 前面讲到深层的特征图在空间尺寸上往往会越来越小，这就意味着它的感受野区域会越来越大，从而更富含图片的全局信息，能较好地解决 what 问题；浅层特征图的空间尺寸较大，这就意味着它的感受野会更小，因而容易捕捉到物体的边缘信息和丰富的细粒特征,能较好地解决 where 问题。感受野大的特征，可以很容易的识别出大物体的，但是在实际分割中，**大物体边缘信息和小物体本身是很容易被深层网络一次次的降采样和一次次升采样给弄丢的，这个时候就可能需要感受野小的特征来帮助**。
@@ -72,55 +71,55 @@ FCN 网络很好地解决了这两个问题，它可以接受任意尺寸的输�
 FCN的上采样层使用的是反卷积层，反卷积也称为转置卷积操作(Transposed convolution)。要了解反卷积是怎么回事，得先回顾一下正向卷积的实现过程。假设输入的图片 input 尺寸为 4x4，元素矩阵为:
 
 <p align="center">
-    <img width="37%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757491425.jpg">
+    <img width="37%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214844.jpg">
 </p>
 
 卷积核的尺寸为 3x3，其元素矩阵为：
 
 <p align="center">
-    <img width="25%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757544885.jpg">
+    <img width="23%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214850.jpg">
 </p>
 
 正向卷积操作：步长 strides = 1, 填充 padding = 0,输出形状为 2x2，该过程如下图所示：
 
 <p align="center">
-    <img width="20%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/no_padding_no_strides.gif">
+    <img width="20%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214920.gif">
 </p>
 
 在上面这幅图中，底端为输入，上端为输出，卷积核为 3x3。如果我们用矩阵乘法去描述这个过程: 把 input 元素矩阵展开成一个列向量 X
 
 <p align="center">
-    <img width="100%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757584674.jpg">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214856.jpg">
 </p>
 
 把输出图像 output 的元素矩阵展开成一个列向量 Y
 
 <p align="center">
-    <img width="30%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757621835.jpg">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214901.jpg">
 </p>
 
 对于输入元素矩阵 X 和输出元素矩阵 Y ，用矩阵运算描述这个过程:
 
 <p align="center">
-    <img width="9%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757652012.jpg">
+    <img width="9%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214904.jpg">
 </p>
 
 通过推导，我们可以获得稀疏矩阵 C
 
 <p align="center">
-    <img width="100%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757682778.jpg">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214908.jpg">
 </p>
 
 稀疏矩阵 C 的形状为 4x16, X 形状为 16x1，Y 的形状为 4x1，将 Y 进行 reshape 后便是我们的期望输出形状 2x2。那么，反卷积的操作就是要对这个矩阵运算过程进行转置，通过输出 Y 得到输入 X：
 
 <p align="center">
-    <img width="9%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757652012.jpg">
+    <img width="9%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214904.jpg">
 </p>
 
 从矩阵元素形状的角度出发，可以理解为：16x1=16x4x4x1，下面这个动画比较生动地描述了反卷积过程:
 
 <p align="center">
-    <img width="10%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FCN/MommyTalk1600757723514.jpg">
+    <img width="10%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/全卷积神经网络FCN-20210508214910.jpg">
 </p>
 
 值得注意的是，反卷积操作并不是卷积操作的可逆过程，也就是说图像经过卷积操作后是不能通过反卷积操作恢复原来的样子。这是因为反卷积只是转置运算，并非可逆运算。

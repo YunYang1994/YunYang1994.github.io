@@ -14,7 +14,7 @@ Unet 是 Kaggle 语义分割挑战赛上的常客。因为它简单，高效，�
 U-Net 与 FCN 非常的相似（比如都没有使用全连接层），U-Net 比 FCN 稍晚提出来，但都发表在 2015 年，和 FCN 相比，U-Net 的第一个特点是完全对称，也就是左边和右边是很类似的。当我第一次看到该网络的拓扑结构时，顿时惊为天人，卧槽，简直是一个大写的 U。
 
 <p align="center">
-    <img width="65%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/Unet/Unet.png">
+    <img width="72%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/医学图片分割网络——Unet-20210508220238.png">
 </p>
 
 <!-- more -->

@@ -4,13 +4,12 @@ date: 2018-12-28 13:17:24
 tags:
     - YOLOv3
 categories: 目标检测
-mathjax: true
 ---
 
 今天讲一讲 YOLOv3, 目标检测网络的巅峰之作, 疾如风，快如闪电。
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/sayit.jpg">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508222438.jpg">
 </p>
 
 <!-- more -->
@@ -20,7 +19,7 @@ mathjax: true
 假设我们想对下面这张 416 X 416 大小的图片进行预测，把图中 dog、bicycle 和 car 三种物体给框出来，这涉及到以下三个过程：
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/dog.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508222628.png">
 </p>
 
 - 怎么在图片上找出很多有价值的候选框？
@@ -29,7 +28,7 @@ mathjax: true
 
 听起来就像把大象装进冰箱，分三步走。事实上，目前的 anchor-based 机制算法例如 RCNN、Faster rcnn 以及 YOLO 算法都是这个思想。最早的时候，RCNN 是这么干的，它首先利用 Selective Search 的方法通过图片上像素之间的相似度和纹理特征进行区域合并，然后提出很多候选框并喂给 CNN 网络提取出特征向量 (embeddings)，最后利用特征向量训练 SVM 来对目标和背景进行分类。
 
-![image](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/RCNN.jpg)
+![RCNN 结构](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508222725.jpg)
 
 这是最早利用神经网络进行目标检测的开山之作，虽然现在看来有不少瑕疵，例如：
 
@@ -52,7 +51,7 @@ mathjax: true
 最终在 2018 年 4 月, 作者又发布了第三个版本 YOLOv3, 在 COCO 数据集上的 mAP-50 由 YOLOv2 的 44.0% 提高到 57.9%, 与 mAP 61.1% 的 RetinaNet 相比, RetinaNet 在输入尺寸 500×500 的情况下检测速度约 98 ms/帧, 而 YOLOv3 在输入尺寸 416×416 时检测速 度可达 29 ms/帧。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/yolov3_speed.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223027.jpg">
 </p>
 
 上面这张图足以秒杀一切, 说明 YOLOv3 在保证速度的前提下, 也达到了很高的准确率。
@@ -64,7 +63,7 @@ mathjax: true
 > If the center of an object falls into a grid cell, that grid cell is responsible for detecting that object.
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/grid.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223111.jpg">
 </p>
 
 每个网格都会输出 bounding box，confidence 和 class probability map。其中：
@@ -78,7 +77,7 @@ mathjax: true
 
 下面这幅图就是 YOLOv3 网络的整体结构，在图中我们可以看到：尺寸为 416X416 的输入图片进入 Darknet-53 网络后得到了 3 个分支，这些分支在经过一系列的卷积、上采样以及合并等操作后最终得到了三个尺寸不一的 feature map，形状分别为 [13, 13, 255]、[26, 26, 255] 和 [52, 52, 255]。
 
-![YOLOv3 的网络结构](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/levio.png)
+![YOLOv3 的网络结构](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223144.png)
 
 讲了这么多，还是不如看代码来得亲切。
 
@@ -131,13 +130,13 @@ Darknet-53 的主体框架如下图所示，它主要由 Convolutional 和 Resid
 
 
 <p align="center">
-    <img width="45%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/darknet53.png">
+    <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223229.png">
 </p>
 
 Darknet-53 有多牛逼？看看下面这张图，作者进行了比较，得出的结论是 Darknet-53 在精度上可以与最先进的分类器进行媲美，同时它的浮点运算更少，计算速度也最快。和 ReseNet-101 相比，Darknet-53 网络的速度是前者的1.5倍；虽然 ReseNet-152 和它性能相似，但是用时却是它的2倍以上。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/darknet_speed.png">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223238.png">
 </p>
 
 
@@ -172,7 +171,7 @@ def convolutional(input_layer, filters_shape, downsample=False, activate=True, b
 > keras.layers.convolutional.ZeroPadding2D(padding=(1, 1), data_format=None) 说明: 对2D输入（如图片）的边界填充0，以控制卷积以后特征图的大小
 
 <p align="center">
-    <img width="15%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/zeropadding.gif">
+    <img width="20%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223350.gif">
 </p>
 
 其实就是对图片的上下左右四个边界填充0而已，padding=((top_pad, bottom_pad), (left_pad, right_pad))。 很简单吧，快打开你的 ipython 试试吧！
@@ -192,7 +191,7 @@ Out[4]: <tf.Tensor 'zero_padding2d_1/Identity:0' shape=(None, 418, 418, 3) dtype
 残差模块最显著的特点是使用了 short cut 机制（有点类似于电路中的短路机制）来缓解在神经网络中增加深度带来的梯度消失问题，从而使得神经网络变得更容易优化。它通过恒等映射(identity mapping)的方法使得输入和输出之间建立了一条直接的关联通道，从而使得网络集中学习输入和输出之间的残差。
 
 <p align="center">
-    <img width="45%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/residual.png">
+    <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223443.png">
 </p>
 
 ```python
@@ -215,7 +214,7 @@ def residual_block(input_layer, input_channel, filter_num1, filter_num2):
 一般而言，CNN 网络在对图像自底向上提取特征时，feature map 的数量(其实也对应的就是卷积核的数目) 会越来越多，而空间信息会越来越少，其特征也会变得越来越抽象。比如著名的 VGG16 网络，它的 feature map 变化就是这个样子。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/vgg16.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223524.jpg">
 </p>
 
 > feature map 在空间尺寸上越来越小，但在通道尺寸上变得越来越深，这就是 VGG16 的特点。
@@ -225,23 +224,26 @@ def residual_block(input_layer, input_channel, filter_num1, filter_num2):
 讲到 feature map 哦，就不得不提一下人脸识别领域里经常提到的 embedding. 一般来说，它其实就是 feature map 被最后一层全连接层所提取到特征向量。早在2006年，深度学习鼻祖 hinton 就在《SCIENCE》上发表了一篇论文，首次利用自编码网络对 mnist 手写数字提取出了特征向量(一个2维或3维的向量)。值得一提的是，也是这篇论文揭开了深度学习兴起的序幕。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/mnist.jpg">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223557.jpg">
 </p>
 
-下面就是上面这张图片里的数字在 CNN 空间里映射后得到的特征向量在2维和3维空间里的样子:
+下面就是上面这张图片里的数字在 CNN 空间里映射后得到的特征向量在2维空间里的样子(假如你对这块感兴趣可以看我[之前的工作](https://github.com/YunYang1994/SphereFace)):
 
+<p align="center">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223850.png">
+</p>
 
 
 前面我们提到：CNN 网络在对图像自底向上提取特征时，得到的 feature map 一般都是在空间尺寸上越来越小，而在通道尺寸上变得越来越深。 那么，为什么要这么做？
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/ROI.jpg">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508223605.jpg">
 </p>
 
 其实，这就与 ROI (感兴趣区域)映射到 Feature Map 有关。在上面这幅图里：原图里的一块 ROI 在 CNN 网络空间里映射后，在 feature map 上空间尺寸会变得更小，甚至是一个点, 但是这个点的通道信息会很丰富，这些通道信息是 ROI 区域里的图片信息在 CNN 网络里映射得到的特征表示。由于图像中各个相邻像素在空间上的联系很紧密，这在空间上造成具有很大的冗余性。因此，我们往往会通过在空间上降维，而在通道上升维的方式来消除这种冗余性，尽量以最小的维度来获得它最本质的特征。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/prediction.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224137.jpg">
 </p>
 
 
@@ -255,14 +257,14 @@ def residual_block(input_layer, input_channel, filter_num1, filter_num2):
 
 YOLOv3 对输入图片进行了粗、中和细网格划分，以便分别实现对大、中和小物体的预测。假如输入图片的尺寸为 416X416, 那么得到粗、中和细网格尺寸分别为 13X13、26X26 和 52X52。这样一算，那就是在长宽尺寸上分别缩放了 32、16 和 8 倍。
 
-![image](https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/multi-scale_pred.png)
+![image](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224220.png)
 
 ### decode 处理
 
 YOLOv3 网络的三个分支输出会被送入 decode 函数中对 Feature Map 的通道信息进行解码。 在下面这幅图里：黑色虚线框代表先验框(anchor)，蓝色框表示的是预测框.
 
 <p align="center">
-    <img width="45%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/decode_anchor.png">
+    <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224237.png">
 </p>
 
 
@@ -360,7 +362,7 @@ score_mask = scores > score_threshold
 k-means 聚类算法有个坑爹的地方在于，类别的个数需要人为事先指定。这就带来一个问题，先验框 anchor 的数目等于多少最合适？一般来说，anchor 的类别越多，那么 YOLO 算法就越能在不同尺度下与真实框进行回归，但是这样就会导致模型的复杂度更高，网络的参数量更庞大。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/k-means.png">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224254.png">
 </p>
 
 > We choose k = 5 as a good tradeoff between model complexity and high recall. If we use 9 centroids we see a much higher average IOU. This indicates that using k-means to generate our bounding box starts the model off with a better representation and makes the task easier to learn.
@@ -368,7 +370,7 @@ k-means 聚类算法有个坑爹的地方在于，类别的个数需要人为事
 在上面这幅图里，作者发现 k = 5 时就能较好地实现高召回率与模型复杂度之间的平衡。由于在 YOLOv3 算法里一共有3种尺度预测，因此只能是3的倍数，所以最终选择了 9 个先验框。这里还有个问题需要解决，k-means 度量距离的选取很关键。距离度量如果使用标准的欧氏距离，大框框就会比小框产生更多的错误。在目标检测领域，我们度量两个边界框之间的相似度往往以 IOU 大小作为标准。因此，这里的度量距离也和 IOU 有关。需要特别注意的是，这里的IOU计算只用到了 boudnding box 的长和宽。在我的代码里，是认为两个先验框的左上角位置是相重合的。(其实在这里偏移至哪都无所谓，因为聚类的时候是不考虑 anchor 框的位置信息的。)
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/MommyTalk1600745437831.jpg">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224506.jpg">
 </p>
 
 如果两个边界框之间的IOU值越大，那么它们之间的距离就会越小。
@@ -476,7 +478,7 @@ conf_loss = conf_focal * (
 这里分类损失采用的是二分类的交叉熵，即把所有类别的分类问题归结为是否属于这个类别，这样就把多分类看做是二分类问题。这样做的好处在于排除了类别的互斥性，特别是解决了因多个类别物体的重叠而出现漏检的问题。
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/MommyTalk1600745936778.jpg">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224731.jpg">
 </p>
 
 
@@ -508,7 +510,7 @@ giou_loss = respond_bbox * bbox_loss_scale * (1 - giou)
 > L2 范数：即欧几里德范数，常用于计算向量的长度；
 
 <p align="center">
-    <img width="80%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/giou.png">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224828.png">
 </p>
 
 当 L1 或 L2 范数都相同的时候，发现 IoU 和 GIoU 的值差别都很大，这表明使用 L 范数来度量边界框的距离是不合适的。在这种情况下，学术界普遍使用 IoU 来衡量两个边界框之间的相似性。作者发现使用 IoU 会有两个缺点，导致其不太适合做损失函数:
@@ -516,7 +518,7 @@ giou_loss = respond_bbox * bbox_loss_scale * (1 - giou)
 - 预测框和真实框之间没有重合时，IoU 值为 0， 导致优化损失函数时梯度也为 0，意味着无法优化。例如，场景 A 和场景 B 的 IoU 值都为 0，但是显然场景 B 的预测效果较 A 更佳，因为两个边界框的距离更近( L 范数更小)。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/giou_AB.png">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508224918.png">
 </p>
 
 > 尽管场景 A 和场景 B 的 IoU 值都为 0，但是场景 B 的预测效果较 A 更佳，这是因为两个边界框的距离更近。
@@ -524,7 +526,7 @@ giou_loss = respond_bbox * bbox_loss_scale * (1 - giou)
 - 即使预测框和真实框之间相重合且具有相同的 IoU 值时，检测的效果也具有较大差异，如下图所示。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/gt_pred.png">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225002.png">
 </p>
 
 > 上面三幅图的 IoU = 0.33， 但是 GIoU 值分别是 0.33, 0.24 和 -0.1， 这表明如果两个边界框重叠和对齐得越好，那么得到的 GIoU 值就会越高。
@@ -532,13 +534,13 @@ giou_loss = respond_bbox * bbox_loss_scale * (1 - giou)
 #### GIoU 的计算公式
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/giou_algorithm.png">
+    <img width="70%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225036.png">
 </p>
 
 the smallest enclosing convex object C 指的是最小闭合凸面 C，例如在上述场景 A 和 B 中，C 的形状分别为:
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/new_AB.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225127.png">
 </p>
 
 > 图中绿色包含的区域就是最小闭合凸面 C，the smallest enclosing convex object。
@@ -566,13 +568,13 @@ def bbox_giou(boxes1, boxes2):
 训练神经网络尤其是深度神经网络所面临的一个问题是，梯度消失或梯度爆炸，也就是说 当你训练深度网络时，导数或坡度有时会变得非常大，或非常小甚至以指数方式变小，这个时候我们看到的损失就会变成了 NaN。假设你正在训练下面这样一个极深的神经网络，为了简单起见，这里激活函数 g(z) = z 并且忽略偏置参数。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/x1x2.png">
+    <img width="55%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225309.png">
 </p>
 
 这里我们首先假定 g(z)=z, b[l]=0，所以对目标输出有：
 
 <p align="center">
-    <img width="35%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/MommyTalk1600746076683.jpg">
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225352.jpg">
 </p>
 
 其实这里直观的理解是：如果权重 W 只比 1 略大一点，或者说只比单位矩阵大一点，深度神经网络的输出将会以爆炸式增长，而如果 W 比 1 略小一点，可能是 0.9, 0.9，每层网络的输出值将会以指数级递减。因此合适的初始化权重值就显得尤为重要! 下面就写个简单的代码给大家演示一下。
@@ -604,7 +606,7 @@ plt.show()
 ```
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/NAN.png">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225433.png">
 </p>
 
 我们可以看到当标准差较大( std = 0.1 和 0.05 )时，几乎所有的输出值集中在 -1 或1 附近，这表明此时的神经网络发生了梯度爆炸；当标准差较小( std = 0.005 和 0.001）时，我们看到输出值迅速向 0 靠拢，这表明此时的神经网络发生了梯度消失。其实笔者也曾在 YOLOv3 网络里做过实验，初始化权重的标准差如果太大或太小，都容易出现 NaN 。
@@ -614,7 +616,7 @@ plt.show()
 学习率是最影响性能的超参数之一，如果我们只能调整一个超参数，那么最好的选择就是它。 其实在我们的大多数的炼丹过程中，遇到 loss 变成 NaN 的情况大多数是由于学习率选择不当引起的。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/lr.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225441.png">
 </p>
 
 
@@ -630,7 +632,7 @@ plt.show()
 ```
 
 <p align="center">
-    <img width="37%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/yolov3_lr.png">
+    <img width="37%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225436.png">
 </p>
 
 ### 加载预训练模型
@@ -642,7 +644,7 @@ plt.show()
 下面是 tensorflow-yolov3 在 PASCAL VOC 2012 上比赛刷的成绩，最后进了榜单的前十名。
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/YOLOv3/yolov3_mAP.png">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/YOLOv3-算法的一点理解-20210508225439.png">
 </p>
 
 

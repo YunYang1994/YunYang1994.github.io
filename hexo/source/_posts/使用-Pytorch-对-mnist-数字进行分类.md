@@ -10,7 +10,7 @@ categories:
 一直以来就非常喜欢 Pytorch，今天就小试牛刀一下，用它实现对 mnist 数字进行分类。
 
 <p align="center">
-    <img width="80%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/使用-Pytorch-对-mnist-数字进行分类/Pytorch.jpg">
+    <img width="80%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/使用-Pytorch-对-mnist-数字进行分类-20210508214147.jpg">
 </p>
 
 <!-- more -->

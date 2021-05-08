@@ -10,7 +10,7 @@ categories:
 自从有了TensorFlow Lite，应用开发者可以在移动设备上很轻松地部署神经网络。
 
 <p align="center">
-    <img width="90%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/Tensorflow-模型转化-tflite/tflite.jpg">
+    <img width="90%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Tensorflow-模型转化-tflite-20210508220505.jpg">
 </p>
 
 <!-- more -->

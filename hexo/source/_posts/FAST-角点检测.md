@@ -9,7 +9,7 @@ categories: 图像处理
 FAST 是一种角点，主要检测局部像素灰度变化明显的地方，以速度快著称。<font color=Red>它的思想是: 如果一个像素与它邻域的像素差别较大(过亮或过暗), 那它更可能是角点。相比于其他角点检测算法，FAST 只需比较像素亮度的大小， 十分快捷。</font>它的检测过程如下:
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FAST-角点检测/01.png">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FAST-角点检测-20210508213941.png">
 </p>
 
 <!-- more -->
@@ -114,7 +114,7 @@ def is_corner(image,row,col,threshold):
 5. 在第一遍检测后，原始的 FAST 角点经常出现“扎堆”的现象。因此需要使用非极大值抑制，在一定区域内仅保留响应极大值的角点，避免角点集中的问题。
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/FAST-角点检测/02.png">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FAST-角点检测-20210508213949.png">
 </p>
 
 > 第一张图片使用了非最大值抑制，而第二张没有使用。可以明显看到，第二张图的关键点的位置重复比较严重。
