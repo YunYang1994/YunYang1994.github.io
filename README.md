@@ -29,4 +29,4 @@ $ hexo d
 
 ### 5. One More Thing
 
-- 本博客是采用 [Picgo](https://github.com/Molunerfinn/PicGo) 进行加速，因此需要记住 Token: `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`
+- 本博客是采用 [Picgo](https://github.com/Molunerfinn/PicGo) 进行加速，因此需要生成你的 Token
