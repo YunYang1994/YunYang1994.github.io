@@ -10,7 +10,7 @@ categories:
 [YOLOv5](https://github.com/ultralytics/yolov5) 发布已经有一段时间了，但是我一直还没有怎么去用过它。机会终于来了，最近需要做一个「旋转目标检测」的项目。于是我想到用它来进行魔改，使其能输出目标的 `rotated bounding boxes`。
 
 <p align="center">
-    <img width="100%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测/P0872.jpg">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测-20210509005417.jpg">
 </p>
 
 <!-- more -->
@@ -28,7 +28,7 @@ categories:
 
 
 <p align="center">
-    <img width="35%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测/vertice.jpg">
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测-20210509005422.jpg">
 </p>
 
 每张图片的标注内容为：在第一行 `imagesource` 表示图片的来源，`GoogleEarth` 或者 `GF-2`；第二行 `gsd` 表示的是[地面采样距离（Ground Sample Distance，简称 GSD）](https://zh.wikipedia.org/wiki/地面采样距离)，如果缺失，则为 `null`；第三行以后则标注的是每个实例的四边框、类别和识别难易程度。
@@ -59,7 +59,7 @@ x1, y1, x2, y2, x3, y3, x4, y4, category, difficult
 数据集里的图片分辨率都很高（最高达到了 `20000x20000`），显然我们的 GPU 不能满足这样的运算要求。如果我们 resize 图片，则会损失图片的信息，尤其是那种大量的小目标（低于 `20x20`）可能会直接消失。因此我们可以考虑使用 [`ImgSplit.py`](https://github.com/CAPTAIN-WHU/DOTA_devkit/blob/master/ImgSplit.py#L241) 将单张遥感图像裁剪切割成多张图片：
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测/P0770_split.jpg">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测-20210509005429.jpg">
 </p>
 
 由于切割图片时会有重叠区域（gap），一般 gap 设为切割图像尺寸的 20% 为宜。分割后会将裁剪的位置信息保留在裁剪后的图片名称中，例如图片 `P0770__1__586___334.png` 就是从原图 `P0770.png` 中 `x=586, y=334` 的位置处开始裁剪。
@@ -89,7 +89,7 @@ image = cv2.drawContours(image, [box], 0, (255, 0, 0), 5)
 ```
 
 <p align="center">
-    <img width="30%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测/boundingrect.png">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测-20210509005434.png">
 </p>
 
 > 绿色框为任意四边形，红色框是它的最小外接矩形。

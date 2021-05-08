@@ -10,7 +10,7 @@ categories:
 武汉疫情还没过去，这几天窝在家里琢磨了下 TensorFlow 的多卡 GPU 分布式训练的机制。本文将使用流行的 MNIST 数据集上训练一个 MobileNetV2 模型，并利用 `tf.distribute.Strategy` 函数实现多卡 GPU 对训练方式。 详细代码见 [<font color=Red>TensorFlow2.0-Example</font>](https://github.com/YunYang1994/TensorFlow2.0-Examples/blob/master/7-Utils/multi_gpu_train.py)
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/TensorFlow-的多卡-GPU-训练机制/th.jpg">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/TensorFlow-的多卡-GPU-训练机制-20210509000745.jpg">
 </p>
 
 <!-- more -->

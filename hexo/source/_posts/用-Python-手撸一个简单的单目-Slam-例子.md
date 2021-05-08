@@ -29,7 +29,7 @@ kps, des = orb.compute(image, kps)
 ```
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/sample_01.gif">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003217.gif">
 </p>
 
 我们首先需要将图片转成灰度图， 然后利用 `goodFeaturesToTrack` 找出图片中的高质量的角点， 接着使用 `orb` 里的 `compuete` 函数计算出这些角点的特征：它会返回 `kps` 和 `des`，`kps` 给出了角点在图像中坐标，而 `des` 则是这些角点的描述子，一般为 32 维的特征向量。
@@ -113,7 +113,7 @@ for kp1, kp2 in zip(frame.curr_kps, frame.last_kps):
 ```
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/3.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003302.jpg">
 </p>
 
 ## RANSAC 去噪和本质矩阵
@@ -126,7 +126,7 @@ RANSAC (RAndom SAmple Consensus, 随机采样一致) 算法是从一组含有 �
 具体的细节这里不再展开，感兴趣的话可以看[这里](https://zhuanlan.zhihu.com/p/62238520)，这里是直接使用三方库里的 `scikit-image` 里的 `ransac` 算法进行求解。由于我们在求解本质矩阵的时候，<strong><font color=Red>需要利用相机内参将角点的像素坐标进行归一化：</font></strong>
 
 <p align="center">
-    <img width="40%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/0.png">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003338.png">
 </p>
 
 其中 `p1` 和 `p2` 分别为配对角点在图片上的像素位置，那么归一化的代码如下：
@@ -143,19 +143,19 @@ def normalize(pts):
 slam 知识里给出了本质矩阵和归一化坐标之间的关系，它可以用一个简洁的公式来表达：
 
 <p align="center">
-    <img width="15%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/2.jpg">
+    <img width="14%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003438.jpg">
 </p>
 
 其中本质矩阵 **E** 是平移向量 **t** 和旋转矩阵 **R** 的外积：
 
 <p align="center">
-    <img width="12%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/7.jpg">
+    <img width="11%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003533.jpg">
 </p>
 
 本质矩阵 `E` 是一个 `3x3` 的矩阵，有 9 个未知元素。然而，上面的公式中 `x` 使用的是齐次坐标（已经有一个已知的 `1`）。而齐次坐标在相差一个常数因子下是相等，因此在单位尺度下只需 8 个点即可求解。
 
 <p align="center">
-    <img width="48%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/1.jpg">
+    <img width="42%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003615.jpg">
 </p>
 
 ```python
@@ -180,7 +180,7 @@ def fit_essential_matrix(match_kps):
 ```
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/4.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003729.jpg">
 </p>
 
 > 可以看到，经过 RANSAC 去燥后，噪点数据消失了很多，角点的追踪情况基本稳定。但是经过筛选后，角点的数量只有原来的三分之一左右了。
@@ -198,17 +198,17 @@ frame: 46, curr_des: 1555, last_des: 1467, match_kps: 549
 接下来的问题是如何根据已经估计得到的本质矩阵 **E**，恢复出相机的运动 **R**，**t**。这个过程是由奇异值分解得到的：
 
 <p align="center">
-    <img width="30%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/6.png">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003827.png">
 </p>
 
 我们发现对角矩阵 `diag([1, 1, 0])` 可以由 `Z` 和 `W` 拆分得到。
 
 <p align="center">
-    <img width="38%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/9.png">
+    <img width="36%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003941.png">
 </p>
 
 <p align="center">
-    <img width="53%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/8.png">
+    <img width="51%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004030.png">
 </p>
 
 将 `Z` 和 `W` 代入进来，令 `E = S R`。可以分解成两种情况：
@@ -216,37 +216,37 @@ frame: 46, curr_des: 1555, last_des: 1467, match_kps: 549
 - 情况 1:
 
 <p align="center">
-    <img width="65%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/11.jpg">
+    <img width="65%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004128.jpg">
 </p>
 
 <p align="center">
-    <img width="32%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/13.jpg">
+    <img width="32%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004216.jpg">
 </p>
 
 - 情况 2:
 
 <p align="center">
-    <img width="78%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/12.jpg">
+    <img width="78%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004257.jpg">
 </p>
 
 <p align="center">
-    <img width="37%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/15.jpg">
+    <img width="37%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004328.jpg">
 </p>
 
 我们发现，此时已经将旋转矩阵 `R` 分离出来了，它有两种情况：分别等于 `R1` 和 `R2`。接下来我们需要考虑平移向量 **t**，可以证明出 **t** 其实是在 **`S`** 的零向量空间里，因为：
 
 <p align="center">
-    <img width="18%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/16.jpg">
+    <img width="18%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004422.jpg">
 </p>
 
 结合线性代数的知识，不难求出 `t = U * (0, 0, 1) = u3` (即 `U` 的最后一列)。考虑到给 `t` 乘以一个非零尺度因子 `λ`， 对于 `E` 而言这种情况依旧有效，而对于 `t` 而言， 当 `λ = ± 1` 时，它们物理的意义（方向）却是不同的。综上，在已知第一个相机矩阵 `P = [ I ∣ 0 ]` 的情况下，第二个相机矩阵 `P′` 有如下 4 种可能的解：
 
 <p align="center">
-    <img width="60%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/17.jpg">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004507.jpg">
 </p>
 
 <p align="center">
-    <img width="100%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/18.png">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004604.png">
 </p>
 
 > 我们发现上面 4 种解其实是 2 种 R 和 2 种 t 之间的排列组合，只有当点 P 位于两个相机前方时才具有正深度，即 (1) 才是唯一正确解。
@@ -311,44 +311,44 @@ def extract_Rt(E):
 下一步我们需要用相机的运动估计特征点的空间位置，在单目 SLAM 中仅通过单目图像是无法获得像素的深度信息，我们需要通过**三角测量（Triangulation）**的方法估计图像的深度，然后通过直接线性变化（DLT）进行求解。 
 
 <p align="center">
-    <img width="45%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/19.png">
+    <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004644.png">
 </p>
 
 
 假设点 `P` 的世界坐标为 `X_{w}`，图像坐标为 `X_{uv}`，相机的内参和位姿分别为 `K` 和 `P_{cw}`，那么得到：
 
 <p align="center">
-    <img width="25%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/MommyTalk1608815330116.jpg">
+    <img width="23%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004725.jpg">
 </p>
 
 将下标去掉，使用相机内参将两个匹配的角点像素坐标进行归一化，代入到上述方程中便得到：
 
 <p align="center">
-    <img width="11%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/MommyTalk1608816102196.jpg">
+    <img width="11%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509004936.jpg">
 </p>
 
 使用 DLT 的话我们对上面两个公式进行一个简单的变换，对等式两边分别做外积运算：
 
 <p align="center">
-    <img width="23%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/MommyTalk1608816174696.jpg">
+    <img width="23%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509005026.jpg">
 </p>
 
 由于 `x={u, v, 1}` ，结合外积运算的知识（详见 slam 十四讲 75 页），我们便得到以下方程：
 
 <p align="center">
-    <img width="30%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/MommyTalk1608816576374.jpg">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509005120.jpg">
 </p>
 
 我们不妨令：
 
 <p align="center">
-    <img width="30%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/MommyTalk1611127747577.jpg">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509005146.jpg">
 </p>
 
 将两个匹配的角点和相机位姿代入上述方程中便得到 `A`：
 
 <p align="center">
-    <img width="50%" src="https://gitee.com/yunyang1994/BlogSource/raw/master/hexo/source/images/用-Python-手撸一个简单的单目-Slam-例子/MommyTalk1611128389750.jpg">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509005240.jpg">
 </p>
 
 因此便可以简化成 `AX=0`，从而可以使用最小二乘法来求解出 `X`，[ORB_SLAM2](https://github.com/raulmur/ORB_SLAM2/blob/f2e6f51cdc8d067655d90a78c06261378e07e8f3/src/Initializer.cc#L734) 中的求解过程如下：
