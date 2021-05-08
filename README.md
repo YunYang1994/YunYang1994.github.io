@@ -29,4 +29,6 @@ $ hexo d
 
 ### 5. One More Thing
 
-- 本博客是采用 [Picgo](https://github.com/Molunerfinn/PicGo) 进行加速，因此需要生成你的 Token
+- 首先下载安装 [Picgo](https://github.com/Molunerfinn/PicGo) 软件，具体使用见这里
+- 需要注意的是 Picgo 的 「指定存储路径」这一栏填写博客的标题，并在 「Picgo设置」里打开时间戳命名
+- 直接将图片拖拽上传至 [blogimgs](https://github.com/YunYang1994/blogimgs)，然后复制图片链接至博客文档中即可
