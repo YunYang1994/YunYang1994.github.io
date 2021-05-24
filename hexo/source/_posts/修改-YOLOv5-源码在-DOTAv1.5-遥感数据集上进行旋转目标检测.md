@@ -94,6 +94,49 @@ image = cv2.drawContours(image, [box], 0, (255, 0, 0), 5)
 
 > 绿色框为任意四边形，红色框是它的最小外接矩形。
 
+## 修改算法的思路
+可能会有人要问，为什么针对遥感图片的目标就需要进行旋转检测呢，水平检测难道就不行吗？<font color=red>如果采用水平检测的方法，那么得到的检测框就容易高度重叠，而目前绝大多数的目标检测算法对于这种高度重叠的目标都容易发生漏检。</font>
+
+<p align="center">
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测20210524144517.png">
+</p>
+
+我们想到：假如在原有的水平目标检测上，给预测框（boudning boxes) 加个角度 theta，那不就实现了旋转目标检测嘛。最简单的思想是，将这个角度预测当作是回归任务去处理，即一共有 180 个类别，便实现了 0~179 个角度。 在模型结构中，我们只需要修改 yolov5 的 Detect 层：
+
+```python
+class Detect(nn.Module):  # 定义检测网络
+    stride = None  # strides computed during build
+    export = False  # onnx export
+
+    def __init__(self, nc=16, anchors=(), ch=()):  # detection layer
+        super(Detect, self).__init__()
+        # number of classes
+        self.nc = nc
+
+        # number of outputs per anchor   （xywh + score + num_classes + num_angle）
+        self.angle = 180
+        self.no = nc + 5 + self.angle
+        
+        self.nl = len(anchors)
+        self.na = len(anchors[0]) // 2
+        self.grid = [torch.zeros(1)] * self.nl  # init grid   [tensor([0.]), tensor([0.]), tensor([0.])] 初始化网格
+        a = torch.tensor(anchors).float().view(self.nl, -1, 2)  # shape(3, ?(3), 2)
+        
+        self.register_buffer('anchors', a)  # shape(nl,na,2) = (3, 3, 2)
+        self.register_buffer('anchor_grid', a.clone().view(self.nl, 1, -1, 1, 1, 2))
+        
+        self.m = nn.ModuleList(nn.Conv2d(x, self.no * self.na, 1) for x in ch) # 最后一层卷基层
+        '''
+        m(
+            (0) :  nn.Conv2d(in_ch[0]（17）, (nc + 5 + self.angle) * na, kernel_size=1)
+            (1) :  nn.Conv2d(in_ch[1]（20）, (nc + 5 + self.angle) * na, kernel_size=1)
+            (2) :  nn.Conv2d(in_ch[2]（23）, (nc + 5 + self.angle) * na, kernel_size=1)
+        )
+        '''
+```
+
+
+
 
 
 
