@@ -101,7 +101,7 @@ image = cv2.drawContours(image, [box], 0, (255, 0, 0), 5)
     <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/修改-YOLOv5-源码在-DOTAv1.5-遥感数据集上进行旋转目标检测20210524144517.png">
 </p>
 
-我们想到：假如在原有的水平目标检测上，给预测框（boudning boxes) 加个角度 theta，那不就实现了旋转目标检测嘛。最简单的思想是，将这个角度预测当作是回归任务去处理，即一共有 180 个类别，便实现了 0~179 个角度。 在模型结构中，我们只需要修改 yolov5 的 Detect 层：
+我们想到：假如在原有的水平目标检测上，给预测框（boudning boxes) 加个角度 theta，那不就实现了旋转目标检测嘛。最简单的思想是，将这个角度预测当作是分类任务去处理，即一共有 180 个类别，便实现了 0~179 个角度。 在模型结构中，我们只需要修改 yolov5 的 Detect 层：
 
 ```python
 class Detect(nn.Module):  # 定义检测网络
