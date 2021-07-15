@@ -1,5 +1,5 @@
 ---
-title: Think different
+title: Think Different
 date: 2019-10-01 00:00:00
 top: true
 ---
