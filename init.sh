@@ -22,6 +22,8 @@ npm install --save hexo-generator-searchdb
 npm install --save hexo-generator-search
 npm install --save hexo-wordcount
 npm install --save hexo-helper-qrcode
+npm uninstall hexo-generator-index --save
+npm install hexo-generator-index-pin-top --save
 
 rm -rf source
 cp -rf ../hexo/* . 
