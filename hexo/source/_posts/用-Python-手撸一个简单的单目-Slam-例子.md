@@ -9,7 +9,7 @@ categories: 立体视觉
 最近因工作需要，开始接触到一些关于 SLAM（Simultaneous Localization and Mapping）的研究。网上关于 slam 的资料有很多，譬如高博的十四讲，github 上的 VINS 等等。但是他们大多是用 C++ 写的，并且环境依赖复杂。今天， 我使用 Python 手撸了一个简单的单目 slam，对 slam 有了一个初步的认识。完整的代码在[这里](https://github.com/YunYang1994/openwork/tree/main/monocular_slam)。
 
 <p align="center">
-<iframe src="//player.bilibili.com/player.html?aid=245798532&bvid=BV1Tv411t7aN&cid=270731969&page=1"  width="600" height="400"  scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+<iframe src="//player.bilibili.com/player.html?aid=245798532&bvid=BV1Tv411t7aN&cid=270731969&page=1"  width="400" height="300"  scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 </p>
 
 <!-- more -->
