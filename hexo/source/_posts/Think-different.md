@@ -16,6 +16,6 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
 #### 给努力奋斗的自己：
 
 <p align="center">
-<iframe src="//player.bilibili.com/player.html?aid=18778202&bvid=BV1qW411e7hV&cid=30626795&page=1"  width="400" height="300"  scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+<iframe src="//player.bilibili.com/player.html?aid=18778202&bvid=BV1qW411e7hV&cid=30626795&page=1&high_quality=1"  width="400" height="300"  scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 </p>
 
