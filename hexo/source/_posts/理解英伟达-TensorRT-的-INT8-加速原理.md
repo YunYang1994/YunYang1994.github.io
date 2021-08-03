@@ -223,7 +223,7 @@ def forward(self, x):
 
 ## 4. 如何处理 batchnorm 层
 
-对于卷积层之后带batchnorm的网络，因为一般在实际使用阶段，为了优化速度，batchnorm 的参数都会提前融合进卷积层的参数中，所以训练模拟量化的过程也要按照这个流程。首先把 batchnorm 的参数与卷积层的参数融合，然后再对这个参数做量化。以下两张图片分别表示的是训练过程与实际应用过程中对batchnorm层处理的区别
+对于卷积层之后带batchnorm的网络，因为一般在实际使用阶段，为了优化速度，batchnorm 的参数都会提前融合进卷积层的参数中，所以训练模拟量化的过程也要按照这个流程。首先把 batchnorm 的参数与卷积层的参数融合，然后再对这个参数做量化。
 
 <p align="center">
     <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210803163328.png">
