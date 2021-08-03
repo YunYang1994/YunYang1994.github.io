@@ -181,7 +181,7 @@ def hook(self, modules, input):
 在上面的过程，其实无非就是求<strong><font color=red>卷积核权重和每层 feature map（即数据流）</font></strong>的 scale 值。有了这个 scale 值后，就可以实现 float32 和 int8 数据类型之间的映射。
 
 <table><center><td bgcolor= LightSalmon><font color=blue>
-整个 INT8 推理过程可以简述为：输入流 x 在喂入每层卷积之前，需要先乘以 blob_scale 映射为 int8 类型数据，然后得到 int8 类型的卷积结果 x。由于卷积层的偏置 bias 没有被量化，它的数据类型仍然是 float32，因此我们需要将计算结果再映射回 float32，然后再与偏置 bias 相加。</font></strong></td></center></table>
+整个 INT8 推理过程可以简述为：输入流 x 在喂入每层卷积之前，需要先乘以 blob_scale 映射为 int8 类型数据，然后得到 int8 类型的卷积结果 x。由于卷积层的偏置 bias 没有被量化，它仍然是 float32 类型，因此我们需要将卷积结果 x 再映射回 float32，然后再与偏置 bias 相加。</font></strong></td></center></table>
 
 <p align="center">
     <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210803170924.gif">
@@ -213,7 +213,7 @@ def forward(self, x):
 
 需要说明的是：在上面的 python 代码中，我们首先将卷积结果 x 减去 bias，然后又分别按照 channel 通道除以 scale 和除以 blob_scale，最后再重新加上 bias 的值。这是因为卷积过程 `self.conv1(x)` 已经实现了 bias 相加的过程，因此我们要将结果先减去 bias 才能得到真正的卷积结果 x，由于卷积结果 x 的数据类型为 int8，所以要映射回 float32 再与 bias 相加。而实际应用的部署代码中是会将卷积计算和偏置相加的两个过程剥离开来的，这样就不用多此一举地将 bias 相减和相加了。
 
-> 思考一下，为什么英伟达的 TensorRT 没有对偏置 bias 进行 INT8 量化？我觉得可能有以下几点原因：
+> 思考一下，为什么英伟达的 TensorRT 没有对偏置 bias 进行 INT8 量化？我觉得可能是基于以下几点原因：
 
 - 偏置 bias 是加法运算，其性能和开销本身就比卷积核的乘法运算要小很多。
 - NVIDIA 的研究人员已经用实验说明了偏置项量化并不太重要，并不能带来很大的性能提升。既然如此，本着奥卡姆剃刀原则，那就不必要牺牲精度来做量化。
@@ -234,6 +234,7 @@ def forward(self, x):
 <p align="center">
     <img width="42%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210803163525.png">
 </p>
+
 
 
 - [[1] nvdia官方的 tensorrt-int8 文档 ](https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf)
