@@ -102,14 +102,14 @@ for name, layer in model.named_modules():
 在获得这个 `blob_max` 值之后，我们会在 (0, blob_max) 划分 `2048` 个刻度（你也可以划分成4096个刻度，只要你喜欢），然后统计每个刻度范围内的数字出现的个数。例如，VGG16 最后一层输入流的直方图分布为：
 
 <p align="center">
-    <img width="55%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210609152447.png" style="max-width:60%;"></p>
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210609152447.png" style="max-width:60%;"></p>
 
 > 可以看到第 `0` 个刻度的概率特别大，这表明大部分的数字都集中在(`-blob_max/2048, blob_max/2048`）区间内。
 
 假如我们设定阈值刻度 `Threshold=512`，因此需要将 `512` 个刻度合并成 `128` 个刻度（因为 int8 的正数范围为 0～127，一共 128 个刻度）。假设合并前 `(0,512)` 的分布为 P， 合并成 `(0, 127)` 后的分布为 Q。那么我们肯定要计算这两个分布的差异性，并希望它们之间的差异越小越好。
 
 <p align="center">
-    <img width="55%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210609152516.png" style="max-width:80%;"></p>
+    <img width="43%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210609152516.png" style="max-width:80%;"></p>
     
 怎么计算两个分布的差异性呢？使用[**`KL 散度`**](https://baike.baidu.com/item/相对熵/4233536?fromtitle=KL散度&fromid=23238109&fr=aladdin)就可以！它又称为交叉熵，等于概率分布的信息熵(**Shannon entropy**)的差值。我们可以使用[scipy.stats.entropy(p, q)](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.entropy.html)进行计算，但是它要求两个输入的长度必须相等：`len(p) == len(q)`。而`P`和`Q`的长度分别为512和128，因此我们需要将 `Q` 拓展回去，其长度也变成512。例如：
 
@@ -183,10 +183,14 @@ def hook(self, modules, input):
 <table><center><td bgcolor= LightSalmon><font color=blue>
 整个 INT8 推理过程可以简述为：输入流 x 在喂入每层卷积之前，需要先乘以 blob_scale 映射为 int8 类型数据，然后得到 int8 类型的卷积结果 x。由于卷积层的偏置 bias 没有被量化，它的数据类型仍然是 float32，因此我们需要将计算结果再映射回 float32，然后再与偏置 bias 相加。</font></strong></td></center></table>
 
+<p align="center">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210803170924.gif">
+</p>
+
 ```python
 def forward(self, x):
     # x= round(x * blobscale) →  input to int8
-    x = x * 51.91119082631764                        # 乘以 feature map 的 scale，即 blob_scale
+    x = x * 51.91119082631764                     # 乘以 feature map 的 scale，即 blob_scale
     x = torch.round(x)
     
     # int8 conv due to dp4a-gpu  cudnn cublas support  we got int32 and transform to float32
@@ -208,3 +212,29 @@ def forward(self, x):
 ```
 
 需要说明的是：在上面的 python 代码中，我们首先将卷积结果 x 减去 bias，然后又分别按照 channel 通道除以 scale 和除以 blob_scale，最后再重新加上 bias 的值。这是因为卷积过程 `self.conv1(x)` 已经实现了 bias 相加的过程，因此我们要将结果先减去 bias 才能得到真正的卷积结果 x，由于卷积结果 x 的数据类型为 int8，所以要映射回 float32 再与 bias 相加。而实际应用的部署代码中是会将卷积计算和偏置相加的两个过程剥离开来的，这样就不用多此一举地将 bias 相减和相加了。
+
+> 思考一下，为什么英伟达的 TensorRT 没有对偏置 bias 进行 INT8 量化？我觉得可能有以下几点原因：
+
+- 偏置 bias 是加法运算，其性能和开销本身就比卷积核的乘法运算要小很多。
+- NVIDIA 的研究人员已经用实验说明了偏置项量化并不太重要，并不能带来很大的性能提升。既然如此，本着奥卡姆剃刀原则，那就不必要牺牲精度来做量化。
+
+<table><center><td bgcolor= LightSalmon><font color=blue>
+最后想说说量化适合的应用场景：由于量化是牺牲了部分精度（虽然比较小）来压缩和加速网络，因此不适合精度非常敏感的任务。由于图片的信息冗余是非常大的，比如相邻一块的像素几乎都一模一样，因此用量化处理一些图像任务，比如目标检测、分类等对于精度不是非常敏感的 CV 任务而言是很适合的，但是对于一些回归任务比如深度估计就不太适合了。</font></strong></td></center></table>
+
+## 4. 如何处理 batchnorm 层
+
+对于卷积层之后带batchnorm的网络，因为一般在实际使用阶段，为了优化速度，batchnorm 的参数都会提前融合进卷积层的参数中，所以训练模拟量化的过程也要按照这个流程。首先把 batchnorm 的参数与卷积层的参数融合，然后再对这个参数做量化。以下两张图片分别表示的是训练过程与实际应用过程中对batchnorm层处理的区别
+
+<p align="center">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210803163328.png">
+</p>
+
+从而可以得到新的卷积权重和偏置：
+
+<p align="center">
+    <img width="42%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/理解英伟达-TensorRT-的-INT8-加速原理-20210803163525.png">
+</p>
+
+
+- [[1] nvdia官方的 tensorrt-int8 文档 ](https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf)
+- [[2] paddleslim 的 int8 量化文档，写得很赞👍 ](https://paddleslim.readthedocs.io/zh_CN/v1.2.0/algo/algo.html#)
