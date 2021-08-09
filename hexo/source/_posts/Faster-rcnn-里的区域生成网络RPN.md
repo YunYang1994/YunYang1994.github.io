@@ -139,7 +139,7 @@ def compute_loss(target_scores, target_bboxes, target_masks, pred_scores, pred_b
 |:---:|:---:|
 |![pos_thresh=0.2, neg_thresh=0.1](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221358.png)|![pos_thresh=0.7, neg_thresh=0.2](https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221405.png)|
 
-最后在测试集上的效果，还是非常赞的! 训练的 score loss基本降到了零，boxes loss 也是非常非常低。但是由于是 RPN 网络，所以我们又不能对它抱太大期望，不然 Faster-RCNN 后面更精确的回归层和分类层意义就不大了。
+最后在测试集上的效果，还是非常赞的! 训练的 score loss基本降到了零，boxes loss 也是非常非常低。但是由于是 RPN 网络，所以我们又不能对它抱太大期望，不然 Faster-RCNN 后面更精确的回归层和分类层意义就不大了。按照对这个算法的理解，我用 TensorFlow 对它进行了复现，感兴趣的话可以看看[这里](https://github.com/YunYang1994/TensorFlow2.0-Examples/tree/master/4-Object_Detection/RPN)。
 
 ## 参考文献
 - [1] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](https://arxiv.org/abs/1506.01497), CVPR 2016
