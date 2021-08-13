@@ -1,6 +1,6 @@
 ---
 title: 理解英伟达 TensorRT 的 INT8 加速原理
-date: 2021-06-9 14:19:54
+date: 2021-06-6 14:19:54
 tags:
     - TensorRT 部署
     - INT8 加速原理
