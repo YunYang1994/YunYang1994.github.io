@@ -71,7 +71,7 @@ class KalmanBoxTracker(object):
 
 ### 状态变量 x
 
-状态变量 x 的设定是一个7维向量：`x=[u, v, s, r, u^, v^, s^]T`。u、v 分别表示目标框的中心点位置的 x、y 坐标，s 表示目标框的面积，r 表示目标框的宽高比。u^、v^、s^ 分别表示横向 u(x方向)、纵向 v(y方向)、面积 s 的运动变化速率。
+状态变量 x 的设定是一个 7维向量：`x=[u, v, s, r, u^, v^, s^]T`。u、v 分别表示目标框的中心点位置的 x、y 坐标，s 表示目标框的面积，r 表示目标框的宽高比。u^、v^、s^ 分别表示横向 u(x方向)、纵向 v(y方向)、面积 s 的运动变化速率。
 
 - u、v、s、r 初始化：根据第一帧的观测结果进行初始化。
 - u^、v^、s^ 初始化：当第一帧开始的时候初始化为0，到后面帧时会根据预测的结果来进行变化。
@@ -137,11 +137,12 @@ class KalmanBoxTracker(object):
         return self.history[-1]
 ```
 
-time_since_update 记录了追踪器连续没有匹配上的次数，该变量在每次 predict 时都会加 1，每次 update 时都会归 0. 假如我们设定跟踪器出现超过连续 2 帧没有匹配关联上，即当 tracker.time_since_update > 2 时，该跟踪器则会被判定失活而被移除列表。
+考虑到这种情况，使用 <strong>time_since_update 记录了追踪器连续没有匹配上的次数</strong>，该变量在每次 predict 时都会加 1，每次 update 时都会归 0. 假如我们设定跟踪器出现超过连续 2 帧没有匹配关联上，即当 tracker.time_since_update > 2 时，该跟踪器则会被判定失活而被移除列表。
 
 ### update 更新阶段
-
+<table><center><td bgcolor=LightPink><font color=black>
 大家都知道，卡尔曼滤波器的更新阶段是使用了观测值 z 来校正误差矩阵和更新卡尔曼增益，并计算出先验估计值和测量值之间的加权结果，该加权结果即为后验估计值。
+</font></strong></td></center></table>
 
 ```python
     def update(self,bbox):
@@ -158,11 +159,11 @@ time_since_update 记录了追踪器连续没有匹配上的次数，该变量�
         self.kf.update(convert_bbox_to_z(bbox))  # bbox 是观测值 [x1,y1,x2,y2] --> [u,v,s,r]
 ```
 
-每次更新时，总的匹配次数 hit 会加 1，连续匹配次数 hit_streak 也加 1. 而如果一旦出现不匹配的情况时，hit_streak 变量会在 predict 阶段被归 0 而重新计时。
+每次更新时，总的匹配次数 hit 会加 1，连续匹配次数 hit_streak 也加 1. <strong>而如果一旦出现不匹配的情况时，hit_streak 变量会在 predict 阶段被归 0 而重新计时。</strong>
 
 ## bbox 关联匹配
 
-关联匹配过程在前面已经讲得很详细了，它是将 tracker 输出的预测框（注意是先验估计值）和 detector 输出的检测框相关联匹配起来。输入是 dets： [[x1,y1,x2,y2,score],...] 和 trks： [[x1,y1,x2,y2,tracking_id],...] 以及一个设定的 iou 阈值，该门槛是为了过滤掉那些低重合度的目标。
+bbox 的关联匹配过程在前面已经讲得很详细了，它是将 tracker 输出的预测框（注意是先验估计值）和 detector 输出的检测框相关联匹配起来。输入是 dets： [[x1,y1,x2,y2,score],...] 和 trks： [[x1,y1,x2,y2,tracking_id],...] 以及一个设定的 iou 阈值，该门槛是为了过滤掉那些低重合度的目标。
 
 ```python
 def associate_detections_to_trackers(dets, trks, iou_threshold = 0.3):
@@ -178,9 +179,11 @@ def associate_detections_to_trackers(dets, trks, iou_threshold = 0.3):
 
 该过程返回：matches（已经匹配成功的追踪器）, unmatched_detections（没有匹配成功的检测目标） and unmatched_trackers（没有匹配成功的跟踪器）。
 
+<table><center><td bgcolor=DarkTurquoise><font color=black>
 对于已经匹配成功的追踪器，则需要用观测值（目标检测框）去更新校正 tracker 并输出修正后的 bbox；对于没有匹配成功的检测目标，则需要新增 tracker 与之对应；对于没有匹配成功的跟踪器，如果长时间处于失活状态，则可以考虑删除了。
+</font></strong></td></center></table>
 
-## 大概流程
+## 整体流程
 有一位[大佬](https://www.codenong.com/cs106088758/)画出了整个 sort 的大概流程，我觉得还可以，这里分享下：
 
 <p align="center">
