@@ -21,7 +21,7 @@ categories: 目标跟踪
 </p>
 
 <table><center><td bgcolor=Plum><font color=black>
-由于 detector 输出的黑色 bbox 是没有 id 的，因此需要将它们和上一帧的跟踪器相对应起来。换句话说就是把 detector 输出的目标检测框和 KalmanFilter 输出的预测框相<font color=black><strong>关联</strong></font>，这样使得每个目标检测框的 id 就是它所关联的跟踪器 id。这里关联的核心是：用 iou 计算 bbox 之间的距离 ➕ 匈牙利算法匹配。
+由于 detector 输出的黑色 bbox 是没有 id 的，因此需要将它们和上一帧的跟踪器相对应起来。换句话说就是把 detector 输出的目标检测框和 KalmanFilter 输出的预测框相<font color=black><strong>关联</strong></font>，这样使得每个目标检测框的 id 就是它所关联的跟踪器 id。这里关联的核心是：<font color=green><strong>用 iou 计算 bbox 之间的距离 ➕ 匈牙利算法匹配。</strong></font>
 </font></strong></td></center></table>
 
 首先计算出 <strong><font color=red>detector 输出的目标检测框</font></strong>（黑色框）和 <strong><font color=red>KalmanFilter 输出的预测框</font></strong> （棕红色 bbox、黄色 bbox 和 青绿色 bbox）之间的 <strong><font color=red>iou 表格</font></strong>如下：
