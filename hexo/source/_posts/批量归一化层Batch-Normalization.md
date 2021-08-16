@@ -12,17 +12,17 @@ categories:
 <p align="center">
     <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/批量归一化层Batch-Normalization-20210508220832.jpg"></p>
 
-## BN 来源
+<!-- more -->
+
+## 1. BN 来源
 
 在机器学习领域中，满足一个很重要的假设，即独立同分布的假设：就是假设训练数据和测试数据是满足相同分布的，这样通过训练数据获得的模型就能够在测试集获得一个较好的效果。而在实际的神经网络模型训练中，隐层的每一层数据分布老是变来变去的，这就是所谓的 <font color=red><strong>“Internal Covariate Shift”</strong></font>。
-
-<!-- more -->
 
 在这种背景下，然后就提出了 BatchNorm 的基本思想：<strong>能不能让每个隐层节点的<font color=red>激活输入分布</font>固定下来呢？</strong>
 
 BN不是凭空拍脑袋拍出来的好点子，它是有启发来源的：之前的研究表明如果在图像处理中对输入图像进行白化（Whiten）操作的话 —— <font color=red><strong>所谓白化，就是对输入数据分布变换到 0 均值，单位方差的正态分布</strong></font> —— 因此 BN 作者推断，如果对神经网络的每一层输出做白化操作的话，模型应该也会较快收敛。
 
-## 计算过程
+## 2. 计算过程
 首先对小批量的样本数据求均值和方差：
 
 <p align="center">
@@ -71,13 +71,13 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
     return Y, moving_mean, moving_var
 ```
 
-## BN 位置
+## 3. BN 位置
 
 在 [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/pdf/1502.03167.pdf) 一文中，作者指出，“we would like to ensure that for any parameter values, the network always produces activations with the desired distribution”（produces activations with the desired distribution，<font color=red><strong>为激活层提供期望的分布</strong></font>）。
 
 <table><tr><td bgcolor= LightSalmon><strong>因此 `Batch Normalization` 层恰恰插入在 conv 层或全连接层之后，而在 relu 等激活层之前。</strong></td></tr></table>
 
-## BN 优点
+## 4. BN 优点
 
 - <strong><font color=red>解决了 Internal Covariate Shift 的问题</font></strong>：模型训练会更加稳定，学习率也可以设大一点，同时也减少了对权重参数初始化的依赖；
 - <strong><font color=red>对防止 gradient vanish 有帮助</font></strong>：一旦有了 Batch Normalization，激活函数的 input 都在零附近，都是斜率比较大的地方，能有效减少梯度消失；

@@ -15,7 +15,7 @@ categories:
 
 <!-- more -->
 
-## 下载 MNIST 数据集
+## 1. 下载 MNIST 数据集
 
 点击[<font color=Red>这里</font>](https://github.com/YunYang1994/yymnist/releases/download/v1.0/mnist.zip)可以下载到 mnist.zip，将它们解压得到以下目录结构：
 
@@ -46,7 +46,7 @@ categories:
 22 directories, 0 files
 ```
 
-## 创建一个分发变量和图的策略
+## 2. 创建一个分发变量和图的策略
 
 接下来将会使用到 `tf.distribute.MirroredStrategy` ，它是如何运作的？
 
@@ -67,7 +67,7 @@ strategy = tf.distribute.MirroredStrategy()
 strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0", "/gpu:2", "/gpu:3"])
 ```
 
-## 构建 MobileNetV2
+## 3. 构建 MobileNetV2
 
 使用 `tf.keras.applications.mobilenet_v2.MobileNetV2` 创建一个模型。你也可以使用模型子类化 API 来完成这个。
 
@@ -86,7 +86,7 @@ with strategy.scope():
     optimizer = tf.keras.optimizers.Adam(0.001)
 ```
 
-## 定义损失函数
+## 4. 定义损失函数
 在多卡 GPU 的训练方式中，`tf.distribute.Strategy` 是如何计算损失的呢？
 
 - 举一个例子，假设您有 4 个 GPU，批量大小为 64. 输入的一个批次分布在各个副本（ 4个 GPU）上，每个副本获得的输入大小为 16。
@@ -107,7 +107,7 @@ with strategy.scope():
     )
 ```
 
-## 训练循环
+## 5. 训练循环
 
 - 我们使用 `for x in ...` 迭代构造 train_dataset ；
 - 缩放损失是 `distributed_train_step` 的返回值。 这个值会在各个副本使用`tf.distribute.Strategy.reduce` 的时候合并，然后通过 `tf.distribute.Strategy.reduce` 叠加各个返回值来跨批次。

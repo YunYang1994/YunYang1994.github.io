@@ -10,7 +10,7 @@ categories: 立体视觉
 
 <strong>SGM（Semi-Global Matching）</strong>是一个基于双目视觉的半全局立体匹配算法，专门用于计算图像的视差。在 SGM 算法中，匹配代价计算是双目立体匹配的第一步，本文将使用 <strong>Census Transform</strong> 方法对此进行介绍。
 
-## 读取图片 
+## 1. 读取图片 
 
 首先使用 OpenCV 将左图和右图读取进来，并需要将它们转成单通道的灰度图输出。
 
@@ -30,7 +30,7 @@ right_image = cv2.imread("./right.png", 0)
 
 > left.png 和 right.png 可以从<font color=Red>[这里](https://github.com/YunYang1994/YunYang1994.github.io/tree/master/images/SGM)</font>进行下载。
 
-## 高斯平滑
+## 2. 高斯平滑
 为了减小双目图片的噪声和细节的层次感，有必要使用高斯平滑算法对它们进行预处理。
 
 ```python
@@ -38,7 +38,7 @@ left_image  = cv2.GaussianBlur(left_image,  (3,3), 0, 0)
 right_image = cv2.GaussianBlur(right_image, (3,3), 0, 0)
 ```
 
-## Census 变换
+## 3. Census 变换
 最早的匹配测度算法使用的是互信息法：对于两幅配准好的影像来说，它们的联合熵是很小的，因为其中一张影像可以通过另外一张影像预测，这表示两者之间的相关性最大，从而互信息也最大。但是它的数学原理非常复杂，且计算需要迭代，计算效率不高。在实际应用中，有一种更简单高效的方法叫 Census 变换更容易收到青睐（OpenCV 里用的就是这种方法）。
 
 Census 变换的基本原理：在图像区域定义一个矩形窗口，用这个矩形窗口遍历整幅图像。选取中心像素作为参考像素，将矩形窗口中每个像素的灰度值与参考像素的灰度值进行比较，灰度值小于参考值的像素标记为 0，大于或等于参考值的像素标记为 1，最后再将它们按位连接，得到变换后的结果，变换后的结果是由 0 和 1 组成的二进制码流。<strong>Census 变换的实质是将邻域像素灰度值相对于中心像素灰度值的差异编码成二进制码流。</strong>
@@ -104,11 +104,11 @@ cv2.imwrite("left_census.png", left_census.astype(np.uint8))
     <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/手写双目立体匹配-SGM-算法-上-20210508235826.png">
 </p>
 
-## Cost Volume
+## 4. Cost Volume
 
 经过census变换后的图像可以使用汉明距离来计算左右两个匹配点之间相似度，这里并没有使用它们的灰度值，而是它们的 census 序列。这是因为单个像素点的灰度差异进行比较没有多大意义，而用该像素点领域范围内的纹理特征（census 序列）进行比较更具有代表性。
 
-### 汉明距离
+### 4.1 汉明距离
 
 两个 census 序列之间的相似度比较使用的是 Hamming 距离，它的度量方式为：<strong>两个字符串对应位置的不同字符的个数</strong>，它本身是一个异或问题，可以使用 `numpy.bitwise_xor` 进行求解。
 
@@ -135,7 +135,7 @@ def HanMingDistance(a, b):
     return distance
 ```
 
-### 代价计算
+### 4.2 代价计算
 
 在极线约束下，我们会对右图从左至右进行扫描: 在右图 u 的位置得到该像素的 census 序列，然后与左图 u+d 位置处进行比较。由于我们事先不知道该处的视差到底有多大，因此我们会假设一个最大视差值 `max_disparity`，并计算 `0, 1, 2, ..., max_disparity` 处所有的 Hamming 距离。这个过程称为代价计算，如下图所示：
 

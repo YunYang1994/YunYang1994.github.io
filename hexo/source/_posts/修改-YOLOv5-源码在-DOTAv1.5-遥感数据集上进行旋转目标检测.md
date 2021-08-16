@@ -15,14 +15,14 @@ categories:
 
 <!-- more -->
 
-## DOTA-v1.5 遥感数据集
+## 1. DOTA-v1.5 遥感数据集
 
 [DOTA](https://captain-whu.github.io/DOTA/index.html) 是武汉大学制作的一个关于航拍遥感数据集，里面的每个目标都由一个任意的四边形边界框标注。这个数据集目前一共有 3 个版本，这里我们只使用和介绍其中的 DOTA-v1.5 版本。
 
-### 图片类别
+### 1.1 图片类别
 一共有 2806 张图片，40 万个实例，分为 16 个类别：***飞机，轮船，储罐，棒球场，网球场，篮球场，地面跑道，港口，桥梁，大型车辆，小型车辆，直升机，环形交叉路口，足球场，游泳池，起重机。***
 
-### 标注方式
+### 1.2 标注方式
 
 每个目标都被一个四边框 **oriented bounding box (OBB)** 标注，其 4 个顶点的坐标表示为（x1, y1, x2, y2, x3, y3, x4, y4）。标注框的起始顶点为黄色，其余 3 个顶点则按照顺时针顺序排列。
 
@@ -41,20 +41,20 @@ x1, y1, x2, y2, x3, y3, x4, y4, category, difficult
 ...
 ```
 
-### 数据下载
+### 1.3 数据下载
 
 - 百度云盘：[Training set](https://pan.baidu.com/s/1kWyRGaz)，[Validation set](https://pan.baidu.com/s/1qZCoF72)，[Testing images](https://pan.baidu.com/s/1i6ly9Id)
 - 谷歌云盘：[Training set](https://drive.google.com/drive/folders/1gmeE3D7R62UAtuIFOB9j2M5cUPTwtsxK?usp=sharing)，[Validation set](https://drive.google.com/drive/folders/1n5w45suVOyaqY84hltJhIZdtVFD9B224?usp=sharing)，[Testing images](https://drive.google.com/drive/folders/1mYOf5USMGNcJRPcvRVJVV1uHEalG5RPl?usp=sharing)
 
 建议通过百度云盘下载，得到的数据容量为：`train`，9.51G；`val`，3.11G。
 
-## 数据集预处理
+## 2. 数据集预处理
 
-### 加载显示图片
+### 2.1 加载显示图片
 
 我们需要用到官方发布的 [DOTA_devkit](https://github.com/CAPTAIN-WHU/DOTA_devkit) 来对数据集进行预处理，不妨根据 `README` 先下载安装该工具。然后我们可以使用 [`DOTA.py`](https://github.com/CAPTAIN-WHU/DOTA_devkit/blob/master/DOTA.py) 来加载指定的图片并显示目标的 obb 框。如果你还想将数据格式转换成 COCO 格式，那么就可以使用 [DOTA2COCO.py](https://github.com/CAPTAIN-WHU/DOTA_devkit/blob/master/DOTA2COCO.py)。
 
-### 分割数据集
+### 2.2 分割数据集
 
 数据集里的图片分辨率都很高（最高达到了 `20000x20000`），显然我们的 GPU 不能满足这样的运算要求。如果我们 resize 图片，则会损失图片的信息，尤其是那种大量的小目标（低于 `20x20`）可能会直接消失。因此我们可以考虑使用 [`ImgSplit.py`](https://github.com/CAPTAIN-WHU/DOTA_devkit/blob/master/ImgSplit.py#L241) 将单张遥感图像裁剪切割成多张图片：
 
@@ -64,7 +64,7 @@ x1, y1, x2, y2, x3, y3, x4, y4, category, difficult
 
 由于切割图片时会有重叠区域（gap），一般 gap 设为切割图像尺寸的 20% 为宜。分割后会将裁剪的位置信息保留在裁剪后的图片名称中，例如图片 `P0770__1__586___334.png` 就是从原图 `P0770.png` 中 `x=586, y=334` 的位置处开始裁剪。
 
-### 最小外接矩形
+### 2.3 最小外接矩形
 
 DOTA 图片里的标注框为任意四边形，而我们需要的是带旋转角度的标准矩形，这就要用到 OpenCV 的 [cv2.minAreaRect()](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contour_features/py_contour_features.html#b-rotated-rectangle) 来求任意四边形的最小外接矩形，示例代码如下：
 
@@ -94,7 +94,7 @@ image = cv2.drawContours(image, [box], 0, (255, 0, 0), 5)
 
 > 绿色框为任意四边形，红色框是它的最小外接矩形。
 
-## 修改算法的思路
+## 3. 修改算法的思路
 可能会有人要问，为什么针对遥感图片的目标就需要进行旋转检测呢，水平检测难道就不行吗？<font color=red>如果采用水平检测的方法，那么得到的检测框就容易高度重叠，而目前绝大多数的目标检测算法对于这种高度重叠的目标都容易发生漏检。</font>
 
 <p align="center">

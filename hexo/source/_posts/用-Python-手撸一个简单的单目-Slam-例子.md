@@ -14,7 +14,7 @@ categories: 立体视觉
 
 <!-- more -->
 
-## ORB 特征点检测
+## 1. ORB 特征点检测
 
 ORB 特征由<strong><font color=Red>关键点</font></strong>和<strong><font color=Red>描述子</font></strong>两部分组成，它的关键点称为 "Oriented FAST"，是一种改进的 FAST 角点，而描述子则称为 BRIEF。在 OpenCV 中，我们可以这样：
 
@@ -38,7 +38,7 @@ kps, des = orb.compute(image, kps)
 frame 1: kps[0]=(294.0, 217.0), des[0]=[ 66 245  18 ...  39 206]
 ```
 
-## 特征点匹配
+## 2. 特征点匹配
 
 特征点匹配的意思就是将本帧检测的所有角点和上一帧的角点进行匹配，因此需要将上一帧的角点 `last_kps`  和描述子 `last_des`  存储起来。此外还需要 `idx` 记录每帧的序列号，并且从第二帧才开始做匹配。我们构造了一个 Frame 类，并将它们定义为类的属性，在实例初始化的时候再将这些属性传递给对象。
 
@@ -116,7 +116,7 @@ for kp1, kp2 in zip(frame.curr_kps, frame.last_kps):
     <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/用-Python-手撸一个简单的单目-Slam-例子-20210509003302.jpg">
 </p>
 
-## RANSAC 去噪和本质矩阵
+## 3. RANSAC 去噪和本质矩阵
 
 RANSAC (RAndom SAmple Consensus, 随机采样一致) 算法是从一组含有 “外点” (outliers) 的数据中正确估计数学模型参数的迭代算法。RANSAC 算法有 2 个基本的假设：
 
@@ -193,7 +193,7 @@ frame: 46, curr_des: 1555, last_des: 1467, match_kps: 549
  [-1.10221539e-01  2.67480554e-01 -1.20159639e-03]]
 ```
 
-## 本质矩阵分解
+## 4. 本质矩阵分解
 
 接下来的问题是如何根据已经估计得到的本质矩阵 **E**，恢复出相机的运动 **R**，**t**。这个过程是由奇异值分解得到的：
 
@@ -306,7 +306,7 @@ def extract_Rt(E):
 
 > 由于平移向量的分量 t[2] > 0，我们很容易知道 Rt 为从相机坐标系的位姿变换到世界坐标系的位姿
 
-## 三角测量
+## 5. 三角测量
 
 下一步我们需要用相机的运动估计特征点的空间位置，在单目 SLAM 中仅通过单目图像是无法获得像素的深度信息，我们需要通过**三角测量（Triangulation）**的方法估计图像的深度，然后通过直接线性变化（DLT）进行求解。 
 
@@ -411,7 +411,7 @@ def triangulate(pts1, pts2, pose1, pose2):
     return points4d
 ```
 
-## pipeline 流程
+## 6. pipeline 流程
 
 ```python
 def process_frame(frame):

@@ -5,7 +5,6 @@ tags:
 	- 精确率、召回率和ROC曲线
 categories:
 	- 深度学习
-mathjax: true
 ---
 
 机器学习领域里评估指标这么多，今天就简单回顾下常用的准确率(accuracy)，精确率(precision) 和召回率(recall)等概念吧！哎，有时候时间太久了就会记不太清楚了。

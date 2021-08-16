@@ -33,7 +33,7 @@ landmarks_frame = pd.read_csv('faces/face_landmarks.csv')
 landmarks_frame.head()
 ```
 
-## Dataset class
+## 1. Dataset class
 
 `torch.utils.data.Dataset` 是一个抽象的类，我们构造的数据集需要继承它得到，并且重载下面 2 个成员函数：
 
@@ -86,7 +86,7 @@ print(sample['image'].shape)          # (160, 160, 3)
 print(sample['landmarks'].shape)      # (68, 2)
 ```
 
-## Transforms
+## 2. Transforms
 
 上述过程完成了对人脸图片和 65 个特征点的读取，接下来需要对它们进行一些预处理操作。本文将介绍 3 种 Transforms 操作：
 
@@ -94,7 +94,7 @@ print(sample['landmarks'].shape)      # (68, 2)
 - RandomCrop，随机地裁剪图片
 - ToTensor，将 numpy 的 `array` 类型转变为 torch 的 `tensor` 类型
 
-### Rescale
+### 2.1 Rescale
 
 ```python
 class Rescale(object):
@@ -131,7 +131,7 @@ print(rescale_sample['image'].shape)           # (256,  256, 3)
     <img width="27%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Pytorch-的数据集准备-20210508212935.jpg">
 </p>
 
-### RandomCrop
+### 2.2 RandomCrop
 
 ```python
 class RandomCrop(object):
@@ -171,7 +171,7 @@ print(crop_sample['image'].shape)           # (128,  128, 3)
     <img width="16%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Pytorch-的数据集准备-20210508212958.jpg">
 </p>
 
-### ToTensor
+### 2.3 ToTensor
 现在需要使用 `torch.from_numpy` 函数将数据转化成 `tensor`，在进行这项操作之前，考虑到 torch 的图片输入顺序为 `[C, H, W]`，而 numpy 的图片顺序为 `[H, W, C]`，因此需要通过 transpose 转化。
 
 ```python
@@ -195,7 +195,7 @@ tensor_sample = tensor_transform(sample)
 print(tensor_sample['image'].shape)           # (3,  160, 160)
 ```
 
-## Compose transforms
+## 3. Compose transforms
 最后我们可以通过 `transforms.Compose` 函数将这些操作串联起来, 并将它传递 `FaceLandmarksDataset` 类的 `transform` 参数：
 
 ```python
@@ -207,7 +207,7 @@ face_dataset = FaceLandmarksDataset(csv_file='faces/face_landmarks.csv',
                                     transform=composed_transform)
 ```
 
-## Iterating through the dataset
+## 4. Iterating through the dataset
 
 ```python
 dataloader = DataLoader(face_dataset, batch_size=32, 

@@ -8,19 +8,17 @@ categories: 目标检测
 
 我觉得 RPN 是目标检测领域里最经典也是最容易入门的网络了。如果你想学好目标检测，那一定不能不知道它！今天讲的 RPN 是来一篇来自 CVPR 2017 的论文 Expecting the Unexpected: Training Detectors for Unusual Pedestrians with Adversarial Imposters， 作者在 Faster-rcnn 的 RPN 基础上进行了改进，用于行人检测。
 
-
-## 网络结构
-
 <p align="center">
     <img width="65%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/Faster-rcnn-里的区域生成网络RPN-20210508221255.png">
 </p>
 
-
-上面是 RPN 的网络结构，它采用了 VGG16 网络进行特征提取。从 VGG16 的整体架构来看，作者为了提高 RPN 在不同分辨率图片下的检测率，分别将 Pool3 层、Pool4 层和 Pool5 层的输出进行卷积和融合得到了一个 45 x 60 x 1280 尺寸的 feature map。最后将这个 feature map 分别输入两个卷积层中得到 softmax 分类层与 bboxes 回归层。
-
 <!-- more -->
 
-## Anchor 机制
+## 1. 网络结构
+
+上图是 RPN 的网络结构，它采用了 VGG16 网络进行特征提取。从 VGG16 的整体架构来看，作者为了提高 RPN 在不同分辨率图片下的检测率，分别将 Pool3 层、Pool4 层和 Pool5 层的输出进行卷积和融合得到了一个 45 x 60 x 1280 尺寸的 feature map。最后将这个 feature map 分别输入两个卷积层中得到 softmax 分类层与 bboxes 回归层。
+
+## 2. Anchor 机制
 
 目标检测其实是生产很多框，然后在消灭无效框的过程。生产很多框的过程利用的是 Anchor 机制，消灭无效框则采用非极大值抑制过程进行处理。RPN 网络输入的图片为 720 x 960，输出的 feature map 尺寸为 45 x 60，由于它们每个点上会产生 9 个 anchor boxes，因此最终一共会得到 45 x 60 x 9 个 anchor boxes。
 
@@ -56,7 +54,7 @@ def compute_regression(box1, box2):
     return target_reg
 ```
 
-## 损失函数
+## 3. 损失函数
 RPN 的损失函数和 YOLO 非常像，不过从发表论文时间顺序来看，应该是 YOLO 借鉴了 RPN 。在 Faster-rcnn 论文里，RPN 的损失函数是这样的:
 
 - 为了训练 RPN， 我们首先给每个 anchor boxes 设置了两个标签，分别为 0: 背景, 1: 前景；
@@ -126,7 +124,7 @@ def compute_loss(target_scores, target_bboxes, target_masks, pred_scores, pred_b
     return score_loss, boxes_loss
 ```
 
-## k-means 造框
+## 4. k-means 造框
 如果 Anchor boxes 的尺寸选得好，那么就使得网络更容易去学习。刚开始我以为反正网络预测的都是 Bounding Boxes 的偏移量，那么 Anchor boxes 尺寸就没那么重要了。但我在复现算法和写代码的过程中发现，看来我还是太年轻了。我使用的是 synthetic_dataset 数据集进行训练，该数据集里所有检测的目标都为 "person"，假如我直接用作者论文里的原始 anchor，那么得到的正样本为如下左图；而如果我使用 k-means算法对该数据集所有的 ground-truth boxes 进行聚类得到的 anchor，那么效果就如下右图所示，显然后者的效果比前者好得多。
 
 |论文原始 anchor|k-means 的 anchor|
