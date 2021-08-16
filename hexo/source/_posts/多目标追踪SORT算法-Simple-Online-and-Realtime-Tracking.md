@@ -196,7 +196,6 @@ def associate_detections_to_trackers(dets, trks, iou_threshold = 0.3):
 - 关联匹配过程中没有使用 feature，这就造成两个物体在重合度较高的时候会发生 id-switch。
 - 优点也很明显，那就是非常快，而且计算量小。
 
-
 参考文献:
 
 - [[1] Simple Online and Realtime Tracking](https://arxiv.org/abs/1602.00763)
