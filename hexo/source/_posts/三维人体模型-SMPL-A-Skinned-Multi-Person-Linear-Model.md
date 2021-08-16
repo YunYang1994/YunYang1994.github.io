@@ -9,21 +9,20 @@ date: 2021-08-21 11:20:01
     <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210816165705.png">
 </p>
 
+「这是一篇鸽了很久的文章，今天补上。」
 <!-- more -->
 
+## 1. SMPL 简介
 
-## 人体动作捕捉
-
-
-
-## SMPL 简介
+### 1.1 人体动作捕捉
 
 
 
-## SMPL 模型
+
+## 2. SMPL 模型
 
 
-## SMPL 训练
+## 3. SMPL 训练
 
 
 
