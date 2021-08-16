@@ -201,3 +201,4 @@ def associate_detections_to_trackers(dets, trks, iou_threshold = 0.3):
 - [[1] Simple Online and Realtime Tracking](https://arxiv.org/abs/1602.00763)
 - [[2] SORT跟踪算法的详细解释，不容错过](https://www.geek-share.com/detail/2765731307.html)
 - [[2] 车流量检测实现：多目标追踪、卡尔曼滤波器、匈牙利算法、SORT/DeepSORT、yoloV3、虚拟线圈法、交并比IOU计算](https://www.codenong.com/cs106088758/)
+
