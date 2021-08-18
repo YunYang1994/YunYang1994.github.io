@@ -33,6 +33,14 @@ LBS 主要是用来计算蒙皮后的网格顶点位置，假设虚拟人物一�
 `p'` 为蒙皮后的网格顶点新位置，维度为 `[n, 3]`；`w` 为<strong>权重矩阵</strong>，维度为 `[n, m]`；`T` 则是每个关节点的<strong>仿射变换矩阵</strong>，维度为 `[m, 4, 4]`，该矩阵代表了关节点的旋转和平移；`p` 为蒙皮前的网格顶点位置。
 
 ### 1.2 为何提出 SMPL
+LBS 面临的一个难点是：即使我们得到了精确的权重矩阵之后，线性混合蒙皮算法仍然会出现皮肤塌陷和皱褶的问题，作者称之为<strong> “taffy”（太妃糖） </strong>和<strong> “bowtie”（领结）</strong>。比如当手弯曲的时候，LBS 的效果（青绿色）就折叠得比较夸张，而 SMPL 的（灰黑色）就相对比较自然。
+
+<p align="center">
+    <img width="40%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210818182218.png">
+</p>
+
+SMPL 较好地解决了上述的痛点，并且一开始的出发点就是为了提出业界兼容、简单易用和渲染速度快的三维人体重建模型。
+
 
 
 
