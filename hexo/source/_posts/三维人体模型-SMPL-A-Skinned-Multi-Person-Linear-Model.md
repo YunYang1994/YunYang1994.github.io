@@ -18,7 +18,7 @@ date: 2021-08-21 11:20:01
 <p align="center">
     <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210819170007.png">
 </p>
-美术师在制作一个虚拟形象模型时，会让其呈现 T-pose 摆放，并定义一套<strong>人体关节树（skeleton tree）</strong>。该关节树的特点在于每个<strong>关节点（joint）</strong>都有一个<strong>父节点（parent joint）</strong>，整个骨架的旋转和平移则通过<strong>根结点（root）</strong>实现。而在下图中，PELVIS 则是根节点。
+美术师在制作一个虚拟形象模型时，会让其呈现 T-pose 摆放，并定义一套<strong>人体关节树（skeleton tree）</strong>。该关节树的特点在于每个<strong>关节点（joint）</strong>都有一个<strong>父节点（parent joint）</strong>，并且是<strong>一个父节点和一个子节点连接成一个关节</strong>。整个骨架的旋转和平移则通过<strong>根结点（root）</strong>实现，例如下图中 PELVIS 则是根节点。
 <p align="center">
     <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210819173522.png">
 </p>
@@ -103,9 +103,10 @@ v_shaped = smpl['shapedirs'].dot(betas) + smpl['v_template']  # 还要与基模�
     <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210819204307.png">
 </p>
 
-在上面公式中，<strong>因为我们是计算相对 T-pose 状态下的线性叠加偏量，所以人体的位姿应该也是要相对 T-pose 状态下进行变化，因此括号里减去了 T-pose 位姿的影响。</strong>每个 pose 参数都用旋转矩阵 R 表示，所以是 9K。同样 P （对应 `smpl['posedirs']`）也是通过数据学习出来的，它的维度为 (6890, 3, 207），其中 207 是因为 23x9 得到。
+在上面公式中，<strong>因为我们是计算相对 T-pose 状态下的线性叠加偏量，所以人体的位姿应该也是要相对 T-pose 状态下进行变化，因此括号里减去了 T-pose 位姿的影响。</strong>每个 pose 参数都用旋转矩阵 R 表示，所以是 9K。同样 P （即权重矩阵，对应 `smpl['weights']`）也是通过数据学习出来的，它的维度为 (6890, 3, 207），其中 207 是因为 23x9 得到。
 
 
+<strong>我们最终需要计算的是每个子节点坐标系相对于它在 T-pose 状态时的位姿</strong>
 
 
 #### 3. 蒙皮过程（blend skinning）
