@@ -14,7 +14,7 @@ date: 2021-08-21 11:20:01
 
 ## 1. 人体动捕介绍
 ### 1.1 动作捕捉技术
-目前人体动作捕捉技术在影视制作和游戏领域已经应用得很成熟了，最常见的就是基于可穿戴设备（比如 IMU）的人体动捕技术。
+目前人体动作捕捉技术在影视制作和游戏领域已经应用得很成熟了，最常见的就是基于可穿戴设备（比如 IMU）的人体动捕技术。当动作人做出一些运动时，穿戴的传感器会捕捉人体的姿态数据并回传给虚拟角色，进而驱动虚拟角色做出与动作人相同的角色。
 <p align="center">
     <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210819170007.png">
 </p>
@@ -55,7 +55,6 @@ LBS 主要是用来计算蒙皮后的网格顶点位置，假设虚拟人物一�
 `p'` 为蒙皮后的网格顶点新位置，维度为 `[n, 3]`；`w` 为<strong>权重矩阵</strong>，维度为 `[n, m]`；`T` 则是每个关节点的<strong>仿射变换矩阵</strong>，维度为 `[m, 4, 4]`，该矩阵代表了关节点的旋转和平移；`p` 为蒙皮前的网格顶点位置。
 
 ## 2. SMPL 模型
-
 ### 2.1 SMPL 的背景
 LBS 面临的一个难点是：<strong>线性混合蒙皮算法会出现皮肤塌陷和皱褶的问题</strong>，作者称之为<strong> “taffy”（太妃糖） </strong>和<strong> “bowtie”（领结）</strong>。比如下图中当手臂弯曲的时候，LBS 的效果（青绿色）就折叠得比较夸张，而且在关节连接处不能提供平滑自然的过渡。<strong>目前商业上普遍的做法是通过人工绑定（rigging）和手工雕刻 blend shape 来改善这个问题，这个过程会比较耗费人力。</strong>
 
@@ -82,7 +81,6 @@ poses = np.random.rand(72) * 0.20
 
 ### 2.3 SMPL 的过程
 SMPL 过程主要可以分为以下三大阶段：
-
 #### 1. 基于形状的 blend shape （混合变形）
 人体的网格顶点（vertices）会随着 shape 参数 β 变化而变化，这个变化过程是在一个<strong>基模版（或者称之为统计上的均值模版，mean template）</strong>上线性叠加的。关于这个<strong>线性叠加偏量</strong>，作者使用了 `Bs(β)` 函数来计算：
 
@@ -115,9 +113,68 @@ def posemap(p):
 v_posed = v_shaped + smpl['posedirs'].dot(utils.posemap(poses))
 ```
 #### 3. 蒙皮过程（blend skinning）
+当人体关节（joint）运动时，由网格顶点（vertex）组成的“皮肤”将会随着关节的运动而变化，这个过程称之为蒙皮。<strong>蒙皮过程可以认为是皮肤节点随着关节的变化而产生的加权线性组合。</strong>简单来说，就是距离某个具体的关节越近的端点，其跟随着该关节旋转/平移等变化的影响越强。
+
+由于输入的 pose 参数是每个子关节点相对父关节点进行旋转的（ relative rota- tion of part k with respect to its parent in the kinematic tree），因此需要计算每个关节坐标系变换到世界坐标系的 transform 矩阵 T：
+
+```python
+rodrigues = lambda x: cv2.Rodrigues(x)[0]
+Ts = np.zeros([24,4,4])
+
+# 首先计算根结点 (0) 的世界坐标变换, 或者说是根结点相对世界坐标系的位姿
+T = np.zeros([4,4])
+T[:3, :3] = rodrigues(poses[0])     # 轴角转换到旋转矩阵，相对世界坐标
+T[:3, 3] = J[0]                     # 根结点在世界坐标系下的位置
+T[3, 3] = 1                         # 齐次矩阵，1
+Ts[0] = T
+
+# 计算子节点 (1~24) 的世界坐标变换
+for i in range(1,24):
+    # 首先计算子节点相对父节点坐标系的位姿 [R|t]
+    T = np.zeros([4,4])
+    T[3, 3] = 1
+
+    # 计算子节点相对父节点的旋转矩阵 R
+    T[:3, :3] = rodrigues(poses[i])
+
+    # 计算子节点相对父节点的偏移量 t
+    T[:3, 3]  = J[i] - J[parent[i]]
+
+    # 然后计算子节点相对世界坐标系的位姿
+    Ts[i] = np.matmul(Ts[parent[i]], T) # 乘上其父节点的变换矩阵
+```
+
+在人体动作捕捉领域中，描述人体关节点的刚性运动指的是每个关节点在运动时相对于静默姿态（T-pose）时的旋转平移。例如对于左腿抬起这样一个动作，1 号节点 `L_HIP` 可以通过 T1 矩阵从静默姿态变换到该姿态，并且底下的子节点都会发生相应的变换（这在上一步骤子节点乘上父节点的变换矩阵已体现）。
+
+<p align="center">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210821150131.png">
+</p>
+
+<strong>由于 SMPL 模型的子节点在 T-pose 状态下坐标系和世界坐标系相同</strong>，因此旋转矩阵不用发生变化, 只需要减去 T-pose 时的关节点位置得到相对偏移量就行：
 
 
+```python
+# 计算每个子节点相对 T-pose 时的位姿矩阵
+for i in range(24):
+    R = Ts[i][:3, :3]
+    t = Ts[i][:3, 3] - R.dot(J[i]) # 子节点相对T-pose的偏移 t
+    Ts[i][:3, 3] = t
+```
 
+以上 `Ts` 就是各个子节点相对各自在 T-pose 情况下的变换矩阵（transform matrix)，该矩阵可以使得每个 vertices 在 T-pose 状态下的位置映射到发生运动时的新位置。蒙皮时还要考虑到所有关节对每个 vertice 的加权影响，因此乘上一个维度为 (6890, 24) 的加权矩阵 `smpl['weights']`：
+
+```python
+# 开始蒙皮操作，LBS 过程
+vertices_homo = np.matmul(smpl['weights'].dot(Ts.reshape([24,16])).reshape([-1,4,4]),
+        v_posed_homo.T.reshape([-1, 4, 1]))
+vertices = vertices_homo.reshape([-1, 4])[:,:3]    # 由于是齐次矩阵，取前3列
+```
+
+在得到网格顶点 vertices 后，还可以通过乘上一个 J_regressor 矩阵（通过大量数据学习得到）得到每个关节点的位置：
+
+```python
+joints = smpl['J_regressor'].dot(vertices)     # 计算 pose 下 joints 位置
+```
 
 ## 3. SMPL 训练
 
