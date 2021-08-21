@@ -119,7 +119,6 @@ v_posed = v_shaped + smpl['posedirs'].dot(utils.posemap(poses))
 
 
 
-
 ## 3. SMPL 训练
 
 
