@@ -103,12 +103,17 @@ v_shaped = smpl['shapedirs'].dot(betas) + smpl['v_template']  # 还要与基模�
     <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210819204307.png">
 </p>
 
-在上面公式中，<strong>因为我们是计算相对 T-pose 状态下的线性叠加偏量，所以人体的位姿应该也是要相对 T-pose 状态下进行变化，因此括号里减去了 T-pose 位姿的影响。</strong>每个 pose 参数都用旋转矩阵 R 表示，所以是 9K。同样 P （即权重矩阵，对应 `smpl['weights']`）也是通过数据学习出来的，它的维度为 (6890, 3, 207），其中 207 是因为 23x9 得到。
+在上面公式中，<strong>因为我们是计算相对 T-pose 状态下的线性叠加偏量，所以人体的位姿应该也是要相对 T-pose 状态下进行变化，因此括号里减去了 T-pose 位姿的影响。</strong>每个 pose 参数都用旋转矩阵 R 表示，所以是 9K。同样 P （即权重矩阵，对应 `smpl['posedirs']`）也是通过数据学习出来的，它的维度为 (6890, 3, 207），其中 207 是因为 23x9 得到。
 
+```python
+def posemap(p):
+    p = p.ravel()[3:]   # 跳过根结点
+    return np.concatenate([(cv2.Rodrigues(
+        np.array(pp))[0]-np.eye(3)).ravel() for pp in p.reshape((-1,3))]).ravel()
 
-<strong>我们最终需要计算的是每个子节点坐标系相对于它在 T-pose 状态时的位姿</strong>
-
-
+# 计算受 pose 影响下调整臀部之后的 vertices
+v_posed = v_shaped + smpl['posedirs'].dot(utils.posemap(poses))
+```
 #### 3. 蒙皮过程（blend skinning）
 
 
