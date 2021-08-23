@@ -115,20 +115,20 @@ v_posed = v_shaped + smpl['posedirs'].dot(utils.posemap(poses))
 #### 3. 蒙皮过程（blend skinning）
 当人体关节（joint）运动时，由网格顶点（vertex）组成的“皮肤”将会随着关节的运动而变化，这个过程称之为蒙皮。<strong>蒙皮过程可以认为是皮肤节点随着关节的变化而产生的加权线性组合。</strong>简单来说，就是距离某个具体的关节越近的端点，其跟随着该关节旋转/平移等变化的影响越强。
 
-由于输入的 pose 参数是每个子关节点相对父关节点进行旋转的（ relative rota- tion of part k with respect to its parent in the kinematic tree），因此需要计算每个关节坐标系变换到世界坐标系的 transform 矩阵 T：
+由于输入的 pose 参数是每个子关节点相对父关节点进行旋转的（ relative rota- tion of part k with respect to its parent in the kinematic tree），因此需要计算每个关节坐标系变换到相机坐标系的 transform 矩阵 T：
 
 ```python
 rodrigues = lambda x: cv2.Rodrigues(x)[0]
 Ts = np.zeros([24,4,4])
 
-# 首先计算根结点 (0) 的世界坐标变换, 或者说是根结点相对世界坐标系的位姿
+# 首先计算根结点 (0) 的相机坐标变换, 或者说是根结点相对相机坐标系的位姿
 T = np.zeros([4,4])
-T[:3, :3] = rodrigues(poses[0])     # 轴角转换到旋转矩阵，相对世界坐标
-T[:3, 3] = J[0]                     # 根结点在世界坐标系下的位置
+T[:3, :3] = rodrigues(poses[0])     # 轴角转换到旋转矩阵，相对相机坐标而言
+T[:3, 3] = J[0]                     # 根结点在相机坐标系下的位置
 T[3, 3] = 1                         # 齐次矩阵，1
 Ts[0] = T
 
-# 计算子节点 (1~24) 的世界坐标变换
+# 计算子节点 (1~24) 的相机坐标变换
 for i in range(1,24):
     # 首先计算子节点相对父节点坐标系的位姿 [R|t]
     T = np.zeros([4,4])
@@ -140,17 +140,20 @@ for i in range(1,24):
     # 计算子节点相对父节点的偏移量 t
     T[:3, 3]  = J[i] - J[parent[i]]
 
-    # 然后计算子节点相对世界坐标系的位姿
+    # 然后计算子节点相对相机坐标系的位姿
     Ts[i] = np.matmul(Ts[parent[i]], T) # 乘上其父节点的变换矩阵
+    print(Ts[i])
+
+global_joints = Ts[:, :3, 3].copy() # 所有关节点在相机坐标系下的位置
 ```
 
-在人体动作捕捉领域中，描述人体关节点的刚性运动指的是每个关节点在运动时相对于静默姿态（T-pose）时的旋转平移。例如对于左腿抬起这样一个动作，1 号节点 `L_HIP` 可以通过 T1 矩阵从静默姿态变换到该姿态，并且底下的子节点都会发生相应的变换（这在上一步骤子节点乘上父节点的变换矩阵已体现）。
+<strong>在人体动作捕捉领域中，描述人体关节点的刚性运动指的是每个关节点在运动时相对于静默姿态（T-pose）时的旋转平移。</strong>例如对于左腿抬起这样一个动作，1 号节点 `L_HIP` 可以通过 T1 矩阵从静默姿态变换到该姿态，并且底下的子节点都会发生相应的变换（这在上一步骤子节点乘上父节点的变换矩阵已体现）。
 
 <p align="center">
     <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210821150131.png">
 </p>
 
-<strong>由于 SMPL 模型的子节点在 T-pose 状态下坐标系和世界坐标系相同</strong>，因此旋转矩阵不用发生变化, 只需要减去 T-pose 时的关节点位置得到相对偏移量就行：
+<strong>由于 SMPL 模型的子节点在 T-pose 状态下坐标系的朝向和相机坐标系相同</strong>，因此旋转矩阵不用发生变化, 只需要减去 T-pose 时的关节点位置得到相对偏移量就行：
 
 
 ```python
@@ -161,7 +164,7 @@ for i in range(24):
     Ts[i][:3, 3] = t
 ```
 
-以上 `Ts` 就是各个子节点相对各自在 T-pose 情况下的变换矩阵（transform matrix)，该矩阵可以使得每个 vertices 在 T-pose 状态下的位置映射到发生运动时的新位置。蒙皮时还要考虑到所有关节对每个 vertice 的加权影响，因此乘上一个维度为 (6890, 24) 的加权矩阵 `smpl['weights']`：
+以上 `Ts` 就是各个子节点相对各自在 T-pose 情况下的变换矩阵（transform matrix)，该矩阵可以使得每个 vertices 在 T-pose 状态下的位置映射到发生运动时的新位置。蒙皮时还要考虑所有关节对每个 vertice 的加权影响，因此乘上一个维度为 (6890, 24) 的加权矩阵 `smpl['weights']`：
 
 ```python
 # 开始蒙皮操作，LBS 过程
@@ -170,18 +173,61 @@ vertices_homo = np.matmul(smpl['weights'].dot(Ts.reshape([24,16])).reshape([-1,4
 vertices = vertices_homo.reshape([-1, 4])[:,:3]    # 由于是齐次矩阵，取前3列
 ```
 
-在得到网格顶点 vertices 后，还可以通过乘上一个 J_regressor 矩阵（通过大量数据学习得到）得到每个关节点的位置：
+在得到网格顶点 vertices 后，还可以通过乘上一个 J_regressor 矩阵（通过大量数据学习得到）得到每个关节点的位置 joints （与 global_joints 的值基本相同）：
 
 ```python
-joints = smpl['J_regressor'].dot(vertices)     # 计算 pose 下 joints 位置
+joints = smpl['J_regressor'].dot(vertices)     # 计算 pose 下 joints 位置，其值基本与 global_joints 一致
 ```
 
-## 3. SMPL 训练
+### 2.4 3D 到 2D 投影
+<strong>上述过程中计算得到的网格顶点 vertices 和 joints 位置，都是在相机坐标系内。</strong>在一些相关的 SMPL 算法（如 vibe 和 expose）中，SMPL 的相机内参都是假定为：
+
+```python
+fx = 5000
+fy = 5000
+cx = width / 2. 
+cy = height / 2.
+
+K = np.zeros([3, 3])
+K[0,0] = fx
+K[1,1] = fy
+K[2,2] = 1.
+K[:-1,-1] = np.array([cx, cy])
+```
+
+这里一般不怎么涉及到相机的外参（假定为单位矩阵），因为相机的外参描述的是相机坐标系和世界坐标系之间的转换关系，这通常在虚拟角色和UE4里渲染场景相融合时才会用到。
+
+有了相机的内参后，我们就可以将关节点的位置从相机坐标系变换到图像坐标系中。不妨先将三维 SMPL 人体基模版关节点投影到一张分辨率为 256x256 的图片中：
+
+```python
+root_transl = [0.0, 0.0, 50]    # 根结点位移(不是位置)
+
+# 基模版的关节点
+global_joints = smpl['J_regressor'].dot(smpl['v_template'])
+points = global_joints + root_transl
+points = points / points[:,2:]  # 归一化坐标
+
+projected_joints = points.dot(K.T)
+projected_joints = projected_joints[:, :2].astype(np.int)
+
+for projected_joint in projected_joints:
+    image = cv2.circle(image, tuple(projected_joint), 3, [0,0,255], 2)
+print(projected_joints)
+cv2.imwrite("skeleton.png", image)
+```
+
+需要说明的是：<strong>SMPL 模型一开始就假定人体是位于相机前方正中央的。但是在很多实际的场景中，人体位置复杂多变，因此就需要一个三维变量 `translation` 来描述与原始假定位置的偏移。</strong> 在上面代码中，我们依然设置人体位于相机的正前方，只不过远离了相机 50 个单元的距离，然后将三维人体关节点投影到图像中得到：
+
+<p align="center">
+    <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210823180106.png">
+</p>
+
+为什么人体是倒立的呢？<strong>你要知道在相机坐标系中：向前是 z 轴，向下是 y 轴，向右是 x 轴，所以基模版的关节点这么看它就是倒立了。</strong>假如你要把它变换到我们常见的世界坐标系（向上 z 轴，向后 x 轴，向右 y 轴）中，那么将它们再乘以一个相应的 transform 矩阵就行了。
 
 
-
-
-
+## 参考文献
+- [[1] SMPL: A Skinned Multi-Person Linear Model](https://files.is.tue.mpg.de/black/papers/SMPL2015.pdf)
+- [[2] 基于李代数的人体手臂惯性动作捕捉算法](http://xb.sut.edu.cn/CN/abstract/abstract1733.shtml)
 
 
 
