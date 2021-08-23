@@ -228,6 +228,6 @@ cv2.imwrite("skeleton.png", image)
 ## 参考文献
 - [[1] SMPL: A Skinned Multi-Person Linear Model](https://files.is.tue.mpg.de/black/papers/SMPL2015.pdf)
 - [[2] 基于李代数的人体手臂惯性动作捕捉算法](http://xb.sut.edu.cn/CN/abstract/abstract1733.shtml)
-
+- [[3] https://github.com/YunYang1994/openwork/tree/main/smpl](https://github.com/YunYang1994/openwork/tree/main/smpl)
 
 
