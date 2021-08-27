@@ -113,16 +113,12 @@ widgets: ## Six widgets in sidebar provided: search, category, tag, recent_posts
   - links
 
 links:
-  - title: YunYang1994's GitHub
+  - title: 我的知乎
+    url: https://www.zhihu.com/people/yang-xiao-yun-tong-xue
+  - title: 我的 GitHub
     url: https://github.com/YunYang1994
   - title: 猿辅导创始人唐巧的博客
     url: https://blog.devtang.com
-  - title: 稚晖的个人站
-    url: http://pengzhihui.xyz
-  - title: CaptainChen
-    url: https://wizyoung.github.io
-  - title: Vincent Qin
-    url: https://www.vincentqin.tech
 
 timeline:
   - num: 1
