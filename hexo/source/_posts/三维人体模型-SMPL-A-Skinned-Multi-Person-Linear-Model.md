@@ -222,7 +222,7 @@ cv2.imwrite("skeleton.png", image)
     <img width="60%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/三维人体模型-SMPL-A-Skinned-Multi-Person-Linear-Model-20210823180106.png">
 </p>
 
-为什么人体是倒立的呢？<strong>你要知道在相机坐标系中：向前是 z 轴，向下是 y 轴，向右是 x 轴，所以基模版的关节点这么看它就是倒立了。</strong>假如你要把它变换到我们常见的世界坐标系（向上 z 轴，向后 x 轴，向右 y 轴）中，那么将它们再乘以一个相应的 transform 矩阵就行了。
+为什么人体是倒立的呢？<strong>你要知道在相机坐标系中：向前是 z 轴，向下是 y 轴，向右是 x 轴，所以基模版的关节点这么看它就是倒立了。</strong>假如你要把它变换到我们常见的世界坐标系（向前 x 轴，向右 y 轴，向上 z 轴）中，那么将它们再乘以一个相应的 transform 矩阵就行了。
 
 
 ## 参考文献
