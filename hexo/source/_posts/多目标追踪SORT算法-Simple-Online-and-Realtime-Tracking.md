@@ -16,7 +16,7 @@ categories: 目标跟踪
 
 ## 1. SORT 简介
 
-整个流程如下图所示：在第 1 帧时，人体检测器 detector 输出 3 个 bbox（黑色），模型会分别为这 3 个 bbox 创建卡尔曼滤波追踪器 kf1，kf2 和 kf3，对应人的编号为 1，2，3 。在第 2 帧的过程 a 中，这 3 个跟踪器会利用上一帧的状态分别输出棕红色 bbox、黄色 bbox 和 青绿色 bbox。
+整个流程如下图所示：在第 1 帧时，<strong>人体检测器 detector 输出 3 个 bbox（黑色）</strong>，模型会分别为这 3 个 bbox 创建卡尔曼滤波追踪器 kf1，kf2 和 kf3，对应人的编号为 1，2，3 。在第 2 帧的过程 a 中，<strong>这 3 个跟踪器会利用上一帧的状态分别输出棕红色 bbox、黄色 bbox 和 青绿色 bbox</strong>。
 
 <p align="center">
     <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/多目标追踪SORT算法-Simple-Online-and-Realtime-Tracking-20210812201919.png">
@@ -34,18 +34,18 @@ categories: 目标跟踪
 |黄色 bbox|0.00|0.98|0.00|
 |青绿色 bbox|0.00|0.00|0.99|
 
-上表可以抽象成一个矩阵，如果是如上表所示的求和最小问题，那么这个矩阵就叫做<strong>花费矩阵（Cost Matrix）</strong>；如果要求的问题是使之和最大化，那么这个矩阵就叫做<strong>利益矩阵（Profit Matrix）</strong>。由于这里 iou 表格的总和越大，则代表 bbox 之间关联匹配得越好，因此是一个利益最大化的问题。可以考虑使用 [匈牙利算法](https://www.pythonf.cn/read/34325) 进行求解，它的最坏时间复杂度为 `O(n^3)`，python 求解如下：
+上表可以抽象成一个矩阵，如果是如上表所示的求和最小问题，那么这个矩阵就叫做<strong>花费矩阵（Cost Matrix）</strong>；如果要求的问题是使之和最大化，那么这个矩阵就叫做<strong>利益矩阵（Profit Matrix）</strong>。sort 算法使用的是花费矩阵，矩阵里的每一个元素值都是预测框和检测框之间的<strong> iou 距离（定义为 1-iou)</strong>，并使用了 [匈牙利算法](https://www.pythonf.cn/read/34325) 进行最小化求解，它的最坏时间复杂度为 `O(n^3)`，python 求解如下：
 
 ```python
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-profit_matrix = np.array([[0.91, 0.00, 0.00],
-                          [0.00, 0.98, 0.00],
-                          [0.00, 0.00, 0.99]])
+cost_matrix = np.array([[0.09, 1.00, 1.00],
+                          [1.00, 0.02, 1.00],
+                          [1.00, 1.00, 0.01]])
 
-rows, cols = linear_sum_assignment(profit_matrix, maximize=True)
-matches = list(zip(rows, cols))        # [(0, 0), (1, 1), (2, 2)]
+rows, cols = linear_sum_assignment(cost_matrix)
+matches = list(zip(rows, cols))        # [(0, 0), (1, 1), (2, 2)] 得到匹配队列
 ```
 
 在完成目标检测框和跟踪器预测框的关联匹配后，我们还需要更新校正卡尔曼滤波跟踪器，并输出优化后的 bbox（如 frame2-b 所示）。需要补充以下两点：
@@ -119,7 +119,7 @@ class KalmanBoxTracker(object):
 - 过程激励噪声的协方差矩阵 Q：`diag([1,1,1,1,0.01,0.01,1e-4]T)`。
 
 ### 2.2 predict 预测阶段
-在预测阶段，追踪器不仅需要预测 bbox，还要记录它自己的活跃度。如果这个追踪器连续多次预测而没有进行一次更新操作，那么表明该跟踪器可能已经“失活”了。因为它的预测框和检测框没有匹配上，说明它之前记录的目标很有可能已经消失了。但是也不一定会发生这种情况，还一种结果是目标在连续几帧消失后又出现在画面里。
+在预测阶段，追踪器不仅需要预测 bbox，还要记录它自己的活跃度。如果这个追踪器连续多次预测而没有进行一次更新操作，那么表明该跟踪器可能已经“失活”了。因为它没有和检测框匹配上，说明它之前记录的目标有可能已经消失或者误匹配了。但是也不一定会发生这种情况，还一种结果是目标在连续几帧消失后又出现在画面里。
 
 ```python
     def predict(self):
@@ -140,7 +140,7 @@ class KalmanBoxTracker(object):
         return self.history[-1]
 ```
 
-考虑到这种情况，使用 <strong>time_since_update 记录了追踪器连续没有匹配上的次数</strong>，该变量在每次 predict 时都会加 1，每次 update 时都会归 0. 假如我们设定跟踪器出现超过连续 2 帧没有匹配关联上，即当 tracker.time_since_update > 2 时，该跟踪器则会被判定失活而被移除列表。
+考虑到这种情况，使用 <strong>time_since_update 记录了追踪器连续没有匹配上的次数</strong>，该变量在每次 predict 时都会加 1，每次 update 时都会归 0. 并且使用了 max_age 设置了追踪器的最大存活期限，如果跟踪器出现超过连续 `max_age` 帧都没有匹配关联上，即当 tracker.time_since_update > max_age 时，该跟踪器则会被判定失活而被移除列表。
 
 ### 2.3 update 更新阶段
 <table><center><td bgcolor=LightPink><font color=black>
