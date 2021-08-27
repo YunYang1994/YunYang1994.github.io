@@ -1,6 +1,9 @@
 ---
 title: DeepSort：多目标跟踪算法 Sort 的进化版
 date: 2021-08-27 00:00:00
+tags:
+    - DeepSort
+categories: 目标跟踪
 ---
 
 在[之前的 Sort 算法](https://yunyang1994.gitee.io/2021/08/14/多目标追踪SORT算法-Simple-Online-and-Realtime-Tracking/)中讲到：<strong>尽管 Sort 具有速度快和计算量较小的优点，但它在关联匹配时没有用到物体的表观特征，导致物体被遮挡时容易出现 id-switch 的情况。</strong>针对这个算法的痛点，原 author 团队又发明了 Sort 的进化版 —— [DeepSort: Simple Online and Realtime Tracking with a Deep Associate Metric](https://arxiv.org/abs/1703.07402)
