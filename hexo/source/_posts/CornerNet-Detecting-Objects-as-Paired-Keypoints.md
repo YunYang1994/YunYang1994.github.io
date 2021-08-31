@@ -20,7 +20,7 @@ CornerNet 是一种用于目标检测的新方法，<strong>它使用单个卷�
 - 需要大量的 anchor（例如 DSSD 需要 40K 个，RetinaNet 需要 100K 个），大量的 anchor 中其实只有少部分 anchor 和 ground-truth 相重合，其他则是负样本，这就造成了正负样本不均衡的局面。
 - anchor 框引入了许多超参，并且需要进行细致设计。包括 anchor 框的数量、尺寸、宽高比例。特别是在单一网络在多尺度进行预测的情况下会变得非常复杂，并且每个尺度都需要独立设计。
 
-基于上述两点原因，<strong>受 keypoint 问题的启发，就想到用关键点检测的思路来处理 detection 问题：只要找到左上角（top-left）和右下角（bottom-right）两个角点，就可以准确框出一个目标了。</strong>作者认为预测物体的角点比预测中心更容易，因为预测一个角点只需要物体的 2 个边，而预测中心却需要 4 个边。其次，角点检测的搜索复杂度仅为 O(wh)，而 proposal bboxes 的搜索复杂度却为 O(w^2h^2）（这是因为在  proposal bboxes 范围里又检索了一次特征，这导致大量  proposal bboxes 之间存在冗余）。
+基于上述两点原因，<strong>受 keypoint 问题的启发，就想到用关键点检测的思路来处理 detection 问题：只要找到左上角（top-left）和右下角（bottom-right）两个角点，就可以准确框出一个目标了。</strong>作者认为预测物体的角点比预测中心更容易，因为预测一个角点只需要物体的 2 个边，而预测中心却需要 4 个边。其次，角点检测的搜索复杂度仅为 O(wh)，而 proposal bboxes 的搜索复杂度却为 O(w^2h^2）（这是因为在  proposal bboxes 范围里又检索了一次特征，这导致大量  proposal bboxes 之间的特征存在冗余）。
 <p align="center">
     <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CornerNet-Detecting-Objects-as-Paired-Keypoints--20210830203636.png">
 </p>
@@ -59,11 +59,30 @@ CornerNet 会输出两个热图（heat map）分别预测出所有目标的左�
 这个向量编码了这个角点对应目标的特征，<strong>如果一个左上角和右下角属于同一个目标，那对应的这两个 embedding 向量应该很相似，因而它们之间的距离应该最小。网络在训练时，使用了 push 损失让同一个目标之间的角点距离最小，push 损失让不同目标之间的角点距离最大。</strong>
 
 ## 4. Corner Pooling
-
 ### 4.1 角池化介绍
+预测框的角点通常在物体范围外，这使得角点附近没有可用的物体特征。例如为了确定像素是否在左上角，我们需要在水平方向上沿着物体的最上边界朝右看，而在垂直方向上沿着物体的最左边界朝下看。因此我们提出了一种角池化（corner pooling）操作，确保在池化过程中能够编码到整个物体的特征。
+<p align="center">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CornerNet-Detecting-Objects-as-Paired-Keypoints--20210831123656.png">
+</p>
+
+下面有 2 个输入特征图，宽高分别用 W 和 H 表示。<strong>假设接下来要对红点（i，j）做 corner pooling：在纵向上就要计算 (i, j) 到 (i, H) 的最大值，在横向上就要计算 (i, j) 到 (W, j) 的最大值，然后将这两个值相加即可。</strong>
+
+<p align="center">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CornerNet-Detecting-Objects-as-Paired-Keypoints--20210831124339.png">
+</p>
+
+动态规划其实可以减少这个计算的复杂度，我们可以在横向上从右往左、在纵向上从下往上去扫描计算最大值，这样大大减少了复杂度。如下图所示：以 2, 1, 3, 0, 2 这一行为例，最后的 2 保持不变，倒数第二个是 max(0,2) = 2，然后倒数第三个为 max(3,2)=3 …… 依次类推。
+
+<p align="center">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CornerNet-Detecting-Objects-as-Paired-Keypoints--20210831124856.png">
+</p>
 
 ### 4.2 角池化位置
+corner pooling 层放在预测模块（prediction module）里，用于预测热图和 embedding 向量。预测模块对何凯明的残差模块做了修改：将第一个 3×3 卷积模块替换为一个 corner pooling 模块，它通过两个具有 128 个通道的 3×3 卷积模块处理来自主干网的特征，然后再应用于 corner pooling 层，接着将特征合并送入 256 个通道的 3×3 Conv-BN 层中并与 short-cut 特征融合，以生成热图、embedding 向量和位置偏移量。
 
+<p align="center">
+    <img width="80%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CornerNet-Detecting-Objects-as-Paired-Keypoints--20210831130846.png">
+</p>
 
 ## 参考文献
 - [[1] CornerNet: Detecting Objects as Paired Keypoints - PPT](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwicmO2w29jyAhURwosBHSAECHUQFnoECAQQAQ&url=https%3A%2F%2Fheilaw.github.io%2Fslides%2FCornerNet.pptx&usg=AOvVaw3MegcZlGlGI-F7tM6Pp8qP)
