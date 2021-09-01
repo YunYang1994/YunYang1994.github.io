@@ -1,5 +1,5 @@
 ---
-title: CenterNet：Objects as Points
+title: CenterNet 和 CenterTrack：以点代物，同时进行目标检测和跟踪
 date: 2021-09-01 11:00:00
 categories: 目标检测
 ---
@@ -10,9 +10,10 @@ categories: 目标检测
     <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CenterNet-Objects-as-Points-20210901104400.png">
 </p>
 
-CenterNet 不仅可以用于目标检测，还可以用于其他的一些任务，如姿态估计或者 3D目标检测等等，但是我们这里只讲它的目标检测问题。
-
+<strong>既然目标已经用一个点来代替了，那么能不能按时间顺序去跟踪这个中心点？</strong>依旧是同样的配方、熟悉的团队，提出了一个基于中心点的联合检测与跟踪框架 —— CenterTrack
 <!-- more -->
+
+## 1. CenterNet
 
 和 CornerNet 一样，作者也是通过二维高斯热图的方式去预测关键点，输出的热图 shape 为 [C, H, W]。如果物体属于该类别，其中心点位置对应的概率为 1，其他类别为 0，而对于远离中心点的像素概率随着<strong>二维高斯分布</strong>衰减。如果出现两个高斯分布发生重叠，那么直接取元素间最大值的就行。
 
@@ -34,6 +35,11 @@ CenterNet 不仅可以用于目标检测，还可以用于其他的一些任务�
 <table><center><td bgcolor=Plum><font color=black>
 其实像 CenterNet 这种直接回归目标中心位置的偏移量和尺寸的思路，YOLOv1 早在 2015 年就已经这样做过了。但是由于当时 YOLOv1 没有采用高斯热图这种方式，导致正样本只有物体中心这一个点，使得它的召回率特别低。在时代的局限性下，Joseph Redmon 只好在 YOLOv2 中采用了 anchor-base 机制。
 </font></strong></td></center></table>
+
+## 2. CenterTrack
+
+
+
 
 ## 参考文献
 - [[1] Objects as Points](https://arxiv.org/abs/1904.07850)
