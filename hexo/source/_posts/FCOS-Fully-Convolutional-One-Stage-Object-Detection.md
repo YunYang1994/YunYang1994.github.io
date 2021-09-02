@@ -33,15 +33,45 @@ categories: 目标检测
 <strong>CornerNet</strong> 是最近提出的一个不错的 anchor-free 算法，它是通过检测一对角点来实现目标检测。但是它<strong>在后处理阶段引入了一套额外的 corners grouping 过程</strong>，看起来也不是最好的。
 
 ## 2. FCOS 算法介绍
+### 2.1 基本思路
+近年来全卷积神经网络（ Fully Convolutional Network，FCN）已经在语义分割、深度估计和关键点检测等领域取得了巨大的突破，这不禁令人想到：<strong>我们能不能像 FCN 语义分割那样在 pixel 级别上解决目标检测问题？</strong> 这样一来这些基本的视觉任务几乎就可以在同一套框架内完成了，FCOS 证实了这一猜想。
 
-### 2.1 基本思想
+当像素（x, y）落入任何一个 ground-truth 框时被认为是正样本，并将 ground-truth 框的类别 c 设置为该像素的类别，否则就是 0. 此外还有一个 4D 向量作为位置回归目标，里面每个元素值分别为该像素到 bbox 四条边的距离（如上图所示）。
+
+<p align="center">
+    <img width="33%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210902195049.png">
+</p>
+
+当像素落在多个 ground-truth 框中时，直接选择面积最小的那个作为回归目标。<strong>相对于 anchor-based 的IOU判断，FCOS 能生成更多的正样本来训练 detector 并且也没引入额外的超参。</strong>
 
 ### 2.2 FCOS 网络
+目标检测里一个比较棘手的问题就是对于重叠目标的识别效果不太好：一个原因是 anchor 对于这类目标的响应具有一定的模糊性，还有另一个重要的原因就是较小的重叠目标的特征在深度下采样时会消失。<strong>FCOS 提出了利用 FPN 模块对不同 size 的目标使用不同分辨率的 feature map 进行预测，并且对 pixel 所属的 feature map level 进行了指定。</strong>比如某个 pixel 满足 max(l∗, t∗, r∗, b∗) > mi 或 max(l∗, t∗, r∗, b∗) < m(i−1) 则认为该 pixel 不属于第 i 层 feature map了，其中 m 是 feature map 的最大回归长度。（这一点其实和 anchor-based 里不同分辨率的 feature map 设置不同大小的 anchor 一样）
 
-### 2.3 多尺度特征
+<p align="center">
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210902211107.png">
+</p>
 
+FCOS 结构如下图所示，它最终输出 80D 分类标签向量 p 和 4D box 坐标向量 t = (l, t, r, b)，训练 C 个二分类器而不是多分类器，并在最后特征后面分别接 4 个卷积层用于分类和定位分支。
 
-### 2.4 Center-ness
+<p align="center">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210902202015.png">
+</p>
+
+对于每个最终输出 feature map （相对于原图的缩放倍数为 s）上的某个点（x, y），我们可以将它映射回原图得到位置：
+
+<p align="center">
+    <img width="25%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210902202910.png">
+</p>
+
+此外，为了保证预测的长度为正数，论文使用了 exp(x) 函数从而保证任何实数的映射范围在（0，∞).最终的整个训练损失函数如下所示：
+
+<p align="center">
+    <img width="55%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210902203920.png">
+</p>
+
+L_cls 为 focal loss 分类损失，L_reg 为 UnitBox 里的 iou 损失，N_pos 为正样本数量，λ 为平衡权重. 
+
+### 2.3 Center-ness
 
 
 
@@ -54,8 +84,7 @@ categories: 目标检测
 
 ## 参考文献
 - [[1] FCOS: Fully Convolutional One-Stage Object Detection](https://arxiv.org/pdf/1904.01355.pdf)
-
-
+- [[2] https://github.com/tianzhi0549/FCOS](https://github.com/tianzhi0549/FCOS)
 
 
 
