@@ -11,6 +11,10 @@ categories: 目标检测
 </p>
 
 <strong>既然目标已经用一个点来代替了，那么能不能按时间顺序去跟踪这个中心点？</strong>依旧是同样的配方、熟悉的团队，提出了一个基于中心点的联合检测与跟踪框架 —— CenterTrack
+
+<p align="center">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CenterNet-Objects-as-Points-20210902111640.png">
+</p>
 <!-- more -->
 
 ## 1. CenterNet
@@ -37,13 +41,20 @@ categories: 目标检测
 </font></strong></td></center></table>
 
 ## 2. CenterTrack
+CenterTrack 的思想比较简洁：<strong>直接预测相邻两帧同一物体在图像上的 2D 位移，然后通过它们之间的距离去判断两个 detection 是否是属于同一个物体。</strong> CenterTrack 的网络结构和 CenterNet 基本一致，只不过输入和输出有些差别。如下图所示：CenterTrack 输入<strong>当前帧与前一帧 ➕ 一张heatmap图</strong>，然后输出<strong>当前帧的高斯热图、目标 size 和相对前一帧的位移</strong>。
 
+<p align="center">
+    <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CenterNet-Objects-as-Points-20210902115504.png">
+</p>
 
+对于预测位移 offset 的损失函数，和 CenterNet 一样使用的也是 L1 损失函数。中心点的位移量 d 预测好了以后，可以通过简单的贪婪匹配算法实现跨时间关联目标。 <strong>对于当前位置 p 的检测结果，可以与上一帧位于 p-d 附近的检测结果相关联</strong>，并且以置信度进行降序排列。<strong>如果在半径 κ 范围内没有匹配上，则生成一个新的跟踪片（tracklet）</strong>，其中 κ 定义为每个跟踪片所对应预测框的宽度和高度的几何平均值。
 
+CenterTrack 实现了 end-to-end 的训练方式，并且在性能和速度方面也达到了 SOTA 的效果。但是它的缺点也很明显：<strong>因为它只能关联连续两帧之间的检测框，所以无法重新激活那些消失较长时间的目标</strong>，期待后面的工作能对此进行改进吧。
 
 ## 参考文献
 - [[1] Objects as Points](https://arxiv.org/abs/1904.07850)
-- [[2] You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/abs/1506.02640)
+- [[2] Tracking Objects as Points](https://arxiv.org/abs/2004.01177)
+- [[3] You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/abs/1506.02640)
 
 
 
