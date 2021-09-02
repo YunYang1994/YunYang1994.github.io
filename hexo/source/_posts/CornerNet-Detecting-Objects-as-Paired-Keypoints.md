@@ -50,7 +50,7 @@ CornerNet 会输出两个热图（heat map）分别预测出所有目标的左�
 从公式中可以看出，<strong>物体角点的精确位置减去其向下取整的位置（其实就是角点左上角最近的网格）就是偏移量。这种方法没什么新奇的，和 YOLOv3 对物体中心点位置预测的思路基本一致。</strong>对于偏移量的损失，作者采用了 smooth L1 Loss 函数。
 
 ## 3. 角点成对
-前面介绍的角点预测工作都是孤立的，不涉及一对角点构成一个检测框的概念。受 [Newell 等人](https://arxiv.org/abs/1611.05424)姿态估计工作的启发，可以基于不同角点的 embedding 向量之间的距离来对它们进行关联。<strong>embedding 特征图的维度为 [N, H, W]，即每个角点都会产生一个 N 维的向量。可能是出于减少计算量的考虑，文章将 N 设置成了 1，这样 embedding 向量就成了一个标量。</strong>
+前面介绍的角点预测工作都是孤立的，不涉及一对角点构成一个检测框的概念。受 [Newell 等人](https://arxiv.org/abs/1611.05424)姿态估计工作的启发，可以基于不同角点的 embedding 向量之间的距离来对它们进行关联。<strong>embedding 特征图的维度为 [N, H, W]，即每个角点都会产生一个 N 维的向量。考虑到 MOT 的数据集一般来说都比较小，ReID 特征的维度不宜过高，文章将 N 设置成了 1，</strong>这样 embedding 向量就成了一个标量。
 
 <p align="center">
     <img width="45%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/CornerNet-Detecting-Objects-as-Paired-Keypoints--20210830204425.png">
