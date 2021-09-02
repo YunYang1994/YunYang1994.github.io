@@ -1,6 +1,7 @@
 ---
 title: 三维人体动捕模型 SMPL：A Skinned Multi Person Linear Model
 date: 2021-08-21 11:20:01
+categories: 姿态估计
 ---
 
 在<strong>人体动作捕捉</strong>（motion capture）领域，SMPL 算法最为常见，它是由德国马普所提出的一种参数化的三维人体动捕模型，具有通用性、易于渲染和兼容现有商业软件（比如 UE4 和 Unity）的优点。
