@@ -72,6 +72,23 @@ FCOS 结构如下图所示，它最终输出 80D 分类标签向量 p 和 4D box
 L_cls 为 focal loss 分类损失，L_reg 为 UnitBox 里的 iou 损失，N_pos 为正样本数量，λ 为平衡权重. 
 
 ### 2.3 Center-ness
+在使用多尺度预测后，FCOS 依然和主流的 anchor-based 算法存在一定的差距，这主要是来源于低质量的预测框，这些框大多是由距离目标中心点比较远的像素所产生。因此，论文提出新的独立分支来预测像素的 <strong>center-ness，用来评估像素与目标中心点的距离</strong>：
+
+<p align="center">
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210903111701.png">
+</p>
+
+center-ness 值的范围为（0， 1）：当像素位于 ground-truth 框边上时，它距离中心位置最远，此时值为 0；当像素位于中心时，此时值为 1.
+
+<p align="center">
+    <img width="30%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/FCOS-Fully-Convolutional-One-Stage-Object-Detection-20210903112233.png">
+</p>
+
+在测试阶段，最终的分数是将分类的 score 分数与 center-ness 进行加权相乘，从而降低那些低质量预测框的分数。
+
+
+
+
 
 
 
