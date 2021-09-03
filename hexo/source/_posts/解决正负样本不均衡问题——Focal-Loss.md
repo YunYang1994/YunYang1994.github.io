@@ -42,9 +42,14 @@ Focal Loss 是在交叉熵损失函数上进行改进的，其背景是来源于
 - 正负样本非常不均衡，而且绝大多数负样本都是 easy example；
 - 虽然这些 easy example 的损失可能比较低，但是它们数量众多，依旧对 loss 有很大贡献，从而使得梯度被 easy example 主导。
 
+因此我们就<strong>自然想到提高困难样本的权重和降低简单样本的权重，因此在交叉熵损失函数的基础上增加一个调节因子</strong>，得到 Focal Loss 如下：
 
+<p align="center">
+    <img width="35%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/解决正负样本不均衡问题——Focal-Loss-20210903222245.png">
+</p>
 
-参考文献:
+其中 γ ∈ [0, 5] 范围内。文章认为 detector 对某目标的预测概率越接近 1，那么说明这个目标就越容易被分类，属于简单样本类型。从最上面的图中可以看出：当一个样本被错误分类时它的概率 Pt 就会很低，属于困难样本，这个时候权重值就接近于 1；而当它的概率接近于 1 时，属于简单样本，其权重就会趋于 0.
 
+## 参考文献:
 - [[1] 深度学习基础篇——交叉熵损失函数](https://paddlepedia.readthedocs.io/en/latest/tutorials/deep_learning/loss_functions/CE_Loss.html)
-- [2] [在人脸识别领域业界通常以误报率漏报率作为衡量算法能力的主要指标.](http://www.bio1000.com/news/201811/203913.html)
+- [[2] Focal Loss for Dense Object Detection](https://arxiv.org/abs/1708.02002)
