@@ -45,7 +45,7 @@ categories:
 将 YOLO 算法从 anchor-base 切换到 anchor-free 的做法非常简单，直接套用 FCOS 那套逻辑即可。但是想要提高预测精度达到 SOTA 却不简单，作者在知乎上对正负样本的匹配经验做了一些总结，大家可以移步[知乎](https://www.zhihu.com/question/473350307/answer/2021031747)。
 
 ### Multi positives
-为了和 YOLOv3 正负样本匹配机制一致，我们刚开始是只选择了一个 positive sample（目标中心）。<strong>但是作者在实验过程中发现，中心附近的 positive samples 有助于缓解正负样本不均衡问题，不应该完全被忽略掉。</strong>因此在训练过程中，作者把中心 3x3 区域内的像素都当作正样本，这个其实也是 FCOS 里的 center sampling 操作。最终这个骚操作使精度提升了 2.1 个百分点，效果显著啊。
+为了和 YOLOv3 正负样本匹配机制一致，作者刚开始是只选择了一个 positive sample（目标中心）。<strong>但是作者在实验过程中发现，中心附近的 positive samples 有助于缓解正负样本不均衡问题，不应该完全被忽略掉。</strong>因此在训练过程中，作者把中心 3x3 区域内的像素都当作正样本，这个其实也是 FCOS 里的 center sampling 操作。最终这个骚操作使精度提升了 2.1 个百分点，效果显著啊。
 
 ### SimOTA
 OAT（Optimal Transport Assignment）是旷视发的一篇 CVPR 2021 论文，它把样本匹配建模成最优传输问题，找出前面 k 个最优的正样本。SimOTA 是在 OTA 的基础做了简化， 有兴趣可以去看看[原文](https://openaccess.thecvf.com/content/CVPR2021/papers/Ge_OTA_Optimal_Transport_Assignment_for_Object_Detection_CVPR_2021_paper.pdf)，这里就不做介绍了。
