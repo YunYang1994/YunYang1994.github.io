@@ -54,7 +54,7 @@ OAT（Optimal Transport Assignment）是旷视发的一篇 CVPR 2021 论文，�
 
 
 ## 参考文献
-- [[1] YOLOX: Exceeding YOLO Series in 2021](YOLOX: Exceeding YOLO Series in 2021)
+- [[1] YOLOX: Exceeding YOLO Series in 2021](https://arxiv.org/abs/2107.08430)
 - [[2] 知乎：如何评价旷视开源的YOLOX，效果超过YOLOv5?](https://www.zhihu.com/question/473350307/answer/2021031747)
 
 
