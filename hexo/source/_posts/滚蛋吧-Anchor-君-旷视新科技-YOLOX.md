@@ -7,7 +7,7 @@ categories:
 	- 目标检测
 ---
 
-天下苦 anchor 久矣，这两年是 anchor-free 系列目标检测算法爆发的时间。但是 YOLO 系列最新推出的 v4 和 v5 依然抱着 anchor 不放，在这种背景下旷视科技推出了基于 anchor-free 的 YOLOx 算法。今天就来盘点一下里面一些有意思的东西。
+天下苦 anchor 久矣，这两年是 anchor-free 系列目标检测算法的爆发时间段。但是 YOLO 系列最新推出的 v4 和 v5 依然抱着 anchor 不放，在这种背景下旷视科技推出了基于 anchor-free 的 YOLOx 算法。今天就来盘点一下这里面一些有意思的东西。
 
 <p align="center">
     <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/滚蛋吧-Anchor-君-旷视新科技-YOLOX-20210907145112.png">
