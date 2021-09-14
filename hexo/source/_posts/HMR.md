@@ -39,7 +39,7 @@ for i in range(n_iter):
     pred_cam = self.deccam(xc) + pred_cam
 ```
 
-考虑到目前业界里 3D 动捕数据的稀缺性，而目前市面上能获得很多人工标注的 2D 关键点数据集（比如 [COCO](https://cocodataset.org/#keypoints-2020) 和 [PoseTrack](https://posetrack.net) 等）。因此引入 3D -> 2D 的[<strong>重投影损失（reprojection loss）</strong>](https://github.com/mkocabas/VIBE/blob/master/lib/core/loss.py#L149)，即将 SMPL 人体的 3D 关键点投影到 2D 图像上与人工标注的 2D 关节点计算损失。
+考虑到目前业界里 3D 动捕数据的稀缺性，而目前市面上能获得很多人工标注的 2D 关键点数据集（比如 [COCO](https://cocodataset.org/#keypoints-2020) 和 [PoseTrack](https://posetrack.net) 等）。因此会引入 3D -> 2D 的[<strong>重投影损失（reprojection loss）</strong>](https://github.com/mkocabas/VIBE/blob/master/lib/core/loss.py#L149)，即将 SMPL 人体的 3D 关键点投影到 2D 图像上与人工标注的 2D 关节点计算损失。
 
 <p align="center">
     <img width="100%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/讲一讲目前深度学习下基于单目的三维人体重建技术-20210914173824.png">
