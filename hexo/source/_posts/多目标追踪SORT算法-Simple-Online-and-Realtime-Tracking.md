@@ -6,7 +6,7 @@ tags:
 categories: 目标跟踪
 ---
 
-在<strong>多目标跟踪</strong>（multiple object tracking）领域，[SORT（Simple Online and Realtime Tracking）](https://arxiv.org/abs/1602.00763)算是最经典的入门算法了。[这份代码](https://github.com/YunYang1994/openwork/tree/main/sort)对该算法进行了 python 和 C++ 实现，感兴趣的可以点开看看。
+在<strong>多目标跟踪</strong>（multiple object tracking）领域，[SORT（Simple Online and Realtime Tracking）](https://arxiv.org/abs/1602.00763)算是最经典的入门算法了。[这份代码](https://github.com/YunYang1994/openwork/tree/master/sort)对该算法进行了 python 和 C++ 实现，感兴趣的可以点开看看。
 
 <p align="center">
     <img width="50%" src="https://cdn.jsdelivr.net/gh/YunYang1994/blogimgs/多目标追踪SORT算法-Simple-Online-and-Realtime-Tracking-20210812202019.png">
